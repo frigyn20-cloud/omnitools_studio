@@ -68,11 +68,23 @@ type LanguageContextValue = {
   setLanguage: (language: Language) => void;
 };
 
+type ThemeContextValue = {
+  dark: boolean;
+  setDark: (dark: boolean) => void;
+};
+
 const LanguageContext = createContext<LanguageContextValue | null>(null);
+const ThemeContext = createContext<ThemeContextValue | null>(null);
 
 function useLanguage() {
   const context = useContext(LanguageContext);
   if (!context) throw new Error("useLanguage must be used inside LanguageContext.Provider");
+  return context;
+}
+
+function useTheme() {
+  const context = useContext(ThemeContext);
+  if (!context) throw new Error("useTheme must be used inside ThemeContext.Provider");
   return context;
 }
 
@@ -1443,10 +1455,7 @@ function StaticPageLayout({
   description: string;
   children: React.ReactNode;
 }) {
-  const [dark, setDark] = useState(false);
-  useEffect(() => {
-    document.documentElement.classList.toggle("dark", dark);
-  }, [dark]);
+  const { dark, setDark } = useTheme();
   return (
     <div className="quiet-grid min-h-screen">
       <Seo title={title} description={description} />
@@ -1504,7 +1513,7 @@ function ContactPage() {
       <section>
         <h2 className="text-lg font-black tracking-[-0.02em]">Public contact email</h2>
         <p className="mt-3 text-muted-foreground">
-          Gmail: kirill.moiseev.prof@gmail.com
+          Before launching on your own domain, replace this section with the public email address you want listed for the project, such as support@yourdomain.com. I did not publish your personal Gmail here because public contact details should be intentional.
         </p>
       </section>
       <section className="rounded-3xl bg-secondary p-5">
@@ -1585,13 +1594,9 @@ function TermsPage() {
 function ToolPage() {
   const params = useParams<{ slug: string }>();
   const tool = tools.find((item) => item.slug === params.slug);
-  const [dark, setDark] = useState(false);
+  const { dark, setDark } = useTheme();
   const { language } = useLanguage();
   const text = uiText[language];
-
-  useEffect(() => {
-    document.documentElement.classList.toggle("dark", dark);
-  }, [dark]);
 
   if (!tool) return <NotFound />;
 
@@ -1709,11 +1714,7 @@ function ToolPage() {
 function ToolsIndexPage() {
   const { language } = useLanguage();
   const text = uiText[language];
-  const [dark, setDark] = useState(false);
-
-  useEffect(() => {
-    document.documentElement.classList.toggle("dark", dark);
-  }, [dark]);
+  const { dark, setDark } = useTheme();
 
   return (
     <div className="quiet-grid min-h-screen">
@@ -1791,11 +1792,7 @@ function SeoLandingPage() {
   const params = useParams<{ slug: string }>();
   const landing = seoLandings.find((item) => item.slug === params.slug);
   const tool = landing ? tools.find((item) => item.slug === landing.toolSlug) : undefined;
-  const [dark, setDark] = useState(false);
-
-  useEffect(() => {
-    document.documentElement.classList.toggle("dark", dark);
-  }, [dark]);
+  const { dark, setDark } = useTheme();
 
   if (!landing || !tool) return <NotFound />;
   const toolCopy = getToolCopy(tool, language);
@@ -1864,11 +1861,7 @@ function SeoLandingPage() {
 
 function BlogIndexPage() {
   const { language } = useLanguage();
-  const [dark, setDark] = useState(false);
-
-  useEffect(() => {
-    document.documentElement.classList.toggle("dark", dark);
-  }, [dark]);
+  const { dark, setDark } = useTheme();
 
   return (
     <div className="quiet-grid min-h-screen">
@@ -1909,11 +1902,7 @@ function BlogPostPage() {
   const { language } = useLanguage();
   const params = useParams<{ slug: string }>();
   const post = blogPosts.find((item) => item.slug === params.slug);
-  const [dark, setDark] = useState(false);
-
-  useEffect(() => {
-    document.documentElement.classList.toggle("dark", dark);
-  }, [dark]);
+  const { dark, setDark } = useTheme();
 
   if (!post) return <NotFound />;
   const postCopy = getBlogPostCopy(post, language);
@@ -1960,14 +1949,11 @@ function BlogPostPage() {
 
 function Home() {
   const { language, setLanguage } = useLanguage();
+  const { dark, setDark } = useTheme();
   const text = uiText[language];
   const [activeCategory, setActiveCategory] = useState<ToolFilter>("all");
   const [activeTool, setActiveTool] = useState("discount");
   const [query, setQuery] = useState("");
-  const [dark, setDark] = useState(false);
-  useEffect(() => {
-    document.documentElement.classList.toggle("dark", dark);
-  }, [dark]);
   useEffect(() => {
     document.title = language === "es" ? "OmniTool Studio - Calculadoras, convertidores y utilidades rápidas" : "OmniTool Studio - Calculators, Converters, and Quick Utilities";
   }, [language]);
@@ -2167,21 +2153,28 @@ function App() {
     if (typeof navigator !== "undefined" && navigator.language?.toLowerCase().startsWith("es")) return "es";
     return "en";
   });
+  const [dark, setDark] = useState(false);
 
   useEffect(() => {
     document.documentElement.lang = language;
   }, [language]);
 
+  useEffect(() => {
+    document.documentElement.classList.toggle("dark", dark);
+  }, [dark]);
+
   return (
     <LanguageContext.Provider value={{ language, setLanguage }}>
-      <QueryClientProvider client={queryClient}>
-        <TooltipProvider>
-          <Toaster />
-          <Router hook={adaptiveLocationHook}>
-            <AppRouter />
-          </Router>
-        </TooltipProvider>
-      </QueryClientProvider>
+      <ThemeContext.Provider value={{ dark, setDark }}>
+        <QueryClientProvider client={queryClient}>
+          <TooltipProvider>
+            <Toaster />
+            <Router hook={adaptiveLocationHook}>
+              <AppRouter />
+            </Router>
+          </TooltipProvider>
+        </QueryClientProvider>
+      </ThemeContext.Provider>
     </LanguageContext.Provider>
   );
 }
