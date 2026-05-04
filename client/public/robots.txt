@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://omnitoolstudio.com
+Sitemap: https://omnitoolstudio.com/sitemap.xml

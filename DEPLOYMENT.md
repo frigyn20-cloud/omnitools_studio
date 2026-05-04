@@ -1,68 +1,21 @@
-# OmniTool Studio: Vercel Launch and Monetization Guide
+# OmniTool Studio: Vercel Launch Guide
 
-This project is ready to upload to GitHub and deploy on Vercel as a static React/Vite website. The Perplexity embedded preview can fail because it serves the site through a special proxy path, but the project is configured for a normal public domain on Vercel.
+This project is ready to upload to GitHub and deploy on Vercel as a static React/Vite website.
 
 ## What is included
 
 - Multi-tool website with calculators, converters, and utilities.
-- Separate public pages for tools, SEO guide pages, blog articles, About, Contact, Privacy, and Terms.
+- 25 focused SEO landing pages with the tool near the top, instructions, examples, and equations.
+- Blog articles, About, Contact, Privacy, and Terms pages.
 - English and Spanish interface/content switcher.
 - Light mode by default, with optional dark mode.
-- AdSense placeholder boxes.
-- `ads.txt`, `robots.txt`, `sitemap.xml`, and Vercel rewrite settings.
+- `robots.txt`, `sitemap.xml`, and Vercel rewrite settings.
+- No ad blocks and no AdSense code.
 
-## Files you should edit before launch
+## Production details already set
 
-### Replace the domain placeholder
-
-After you know your final domain, replace every `https://your-domain.com` inside:
-
-- `client/public/sitemap.xml`
-- `client/public/robots.txt`
-
-Example:
-
-```txt
-https://your-domain.com
-```
-
-becomes:
-
-```txt
-https://omnitoolstudio.com
-```
-
-Do not add a slash at the end when replacing the base domain.
-
-### Add your public contact email
-
-Open `client/src/App.tsx` and search for:
-
-```txt
-Before launching on your own domain
-```
-
-Replace that Contact page paragraph with your public support email. Use an email you are comfortable putting online, for example:
-
-```txt
-For questions, feedback, or business inquiries, contact: hello@your-domain.com
-```
-
-### Keep `ads.txt` as-is until AdSense gives you a publisher ID
-
-Google AdSense gives you a publisher ID that looks like:
-
-```txt
-pub-0000000000000000
-```
-
-After you have that ID, replace `client/public/ads.txt` with:
-
-```txt
-google.com, pub-0000000000000000, DIRECT, f08c47fec0942fa0
-```
-
-Use your real publisher ID, not the example number.
+- Website domain in sitemap and robots: `https://omnitoolstudio.com`
+- Public contact email: `kirill.moiseev.prof@gmail.com`
 
 ## GitHub upload steps
 
@@ -95,68 +48,42 @@ Important: upload the contents inside the folder, not the ZIP file itself.
    - Output Directory: `dist/public`
 7. Click `Deploy`.
 8. Wait for deployment to finish.
-9. Click the Vercel URL and test:
-   - Home page loads.
-   - `/tools` loads.
-   - `/discount-calculator` loads.
-   - `/blog/how-to-calculate-a-discount` loads.
-   - Language selector works.
-   - Dark mode toggle works.
+9. Test these pages:
+   - `/`
+   - `/tools`
+   - `/percent-off-calculator`
+   - `/50-percent-off-calculator`
+   - `/age-calculator`
+   - `/hourly-to-salary-calculator`
+   - `/mb-to-gb-converter`
+   - `/blog/how-to-calculate-a-discount`
+   - `/sitemap.xml`
+   - `/robots.txt`
 
 ## Custom domain steps
 
-1. Buy a domain from Namecheap, GoDaddy, Google Domains/Squarespace, Cloudflare, or another registrar.
-2. In Vercel, open your project.
-3. Go to `Settings`.
-4. Click `Domains`.
-5. Add your domain, for example `omnitoolstudio.com`.
-6. Vercel will show DNS records to add at your domain registrar.
-7. Copy those DNS records exactly.
-8. Wait until Vercel shows the domain as valid.
-9. After the domain works, update `sitemap.xml` and `robots.txt` with your real domain, commit the changes to GitHub, and let Vercel redeploy.
+1. In Vercel, open your project.
+2. Go to `Settings`.
+3. Click `Domains`.
+4. Add `omnitoolstudio.com`.
+5. Vercel will show DNS records to add at your domain registrar.
+6. Copy those DNS records exactly.
+7. Wait until Vercel shows the domain as valid.
 
 ## Google Search Console setup
 
 1. Go to Google Search Console.
-2. Add your domain as a property.
+2. Add `omnitoolstudio.com` as a domain property.
 3. Verify ownership using the DNS method Google provides.
-4. Submit your sitemap:
+4. Submit this sitemap:
 
 ```txt
-https://your-real-domain.com/sitemap.xml
+https://omnitoolstudio.com/sitemap.xml
 ```
 
-5. Use URL inspection for your homepage and request indexing.
-
-## Google AdSense setup
-
-1. Make sure the site is live on your own domain.
-2. Make sure About, Contact, Privacy, and Terms pages are visible.
-3. Make sure the Contact page has a real public email.
-4. Go to Google AdSense.
-5. Add your website domain.
-6. Copy the AdSense verification script.
-7. Paste the script into `client/index.html` before `</head>`.
-8. Commit the change to GitHub.
-9. Wait for Vercel to redeploy.
-10. After AdSense gives you a publisher ID, update `client/public/ads.txt`.
-11. Submit the site for review.
-
-Do not expect ads to show immediately. Google must review and approve the website first.
-
-## After AdSense approval
-
-The current site has ad placeholder boxes. After approval, replace those placeholders with real AdSense ad units. Search in `client/src/App.tsx` for:
-
-```txt
-function AdSlot
-```
-
-That is the component to update with Google’s ad code.
+5. Use URL inspection for the homepage and several new SEO pages, then request indexing.
 
 ## Local test commands
-
-If you want to test on your computer:
 
 ```bash
 npm install
@@ -173,12 +100,11 @@ dist/public
 ## Final pre-launch checklist
 
 - Domain connected to Vercel.
-- `sitemap.xml` uses your real domain.
-- `robots.txt` points to your real sitemap.
-- Contact page has a public email.
+- `sitemap.xml` uses `https://omnitoolstudio.com`.
+- `robots.txt` points to `https://omnitoolstudio.com/sitemap.xml`.
+- Contact page lists `kirill.moiseev.prof@gmail.com`.
 - Privacy and Terms pages are accessible.
+- All 25 SEO pages load.
 - Google Search Console is connected.
 - Sitemap is submitted.
-- AdSense verification script is added.
-- `ads.txt` is updated after you get your publisher ID.
 - Site pages load on mobile and desktop.

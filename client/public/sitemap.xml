@@ -27,46 +27,28 @@
   <url><loc>https://omnitoolstudio.com/countdown-timer</loc><priority>0.8</priority></url>
   <url><loc>https://omnitoolstudio.com/password-generator</loc><priority>0.9</priority></url>
   <url><loc>https://omnitoolstudio.com/text-tools</loc><priority>0.8</priority></url>
-  <url><loc>https://omnitoolstudio.com/25-percent-off-calculator</loc><priority>0.8</priority></url>
-  <url><loc>https://omnitoolstudio.com/20-percent-off-calculator</loc><priority>0.8</priority></url>
-  <url><loc>https://omnitoolstudio.com/30-percent-off-calculator</loc><priority>0.8</priority></url>
-  <url><loc>https://omnitoolstudio.com/discount-calculator-with-sales-tax</loc><priority>0.8</priority></url>
-  <url><loc>https://omnitoolstudio.com/tip-calculator-for-2-people</loc><priority>0.8</priority></url>
-  <url><loc>https://omnitoolstudio.com/tip-calculator-for-4-people</loc><priority>0.8</priority></url>
-  <url><loc>https://omnitoolstudio.com/20-percent-tip-calculator</loc><priority>0.8</priority></url>
-  <url><loc>https://omnitoolstudio.com/monthly-budget-calculator-students</loc><priority>0.8</priority></url>
-  <url><loc>https://omnitoolstudio.com/monthly-savings-goal-calculator</loc><priority>0.8</priority></url>
-  <url><loc>https://omnitoolstudio.com/car-loan-payment-calculator</loc><priority>0.8</priority></url>
-  <url><loc>https://omnitoolstudio.com/personal-loan-payment-calculator</loc><priority>0.8</priority></url>
-  <url><loc>https://omnitoolstudio.com/compound-interest-savings-calculator</loc><priority>0.8</priority></url>
-  <url><loc>https://omnitoolstudio.com/emergency-fund-calculator</loc><priority>0.8</priority></url>
-  <url><loc>https://omnitoolstudio.com/daily-calorie-calculator-for-weight-loss</loc><priority>0.7</priority></url>
-  <url><loc>https://omnitoolstudio.com/bmr-calculator</loc><priority>0.7</priority></url>
-  <url><loc>https://omnitoolstudio.com/days-between-dates-calculator</loc><priority>0.8</priority></url>
-  <url><loc>https://omnitoolstudio.com/add-days-to-date-calculator</loc><priority>0.8</priority></url>
-  <url><loc>https://omnitoolstudio.com/meters-to-feet-converter</loc><priority>0.8</priority></url>
-  <url><loc>https://omnitoolstudio.com/kg-to-pounds-converter</loc><priority>0.8</priority></url>
-  <url><loc>https://omnitoolstudio.com/celsius-to-fahrenheit-converter</loc><priority>0.8</priority></url>
-  <url><loc>https://omnitoolstudio.com/usd-to-eur-converter</loc><priority>0.8</priority></url>
-  <url><loc>https://omnitoolstudio.com/usd-to-mxn-converter</loc><priority>0.8</priority></url>
-  <url><loc>https://omnitoolstudio.com/los-angeles-to-new-york-time-converter</loc><priority>0.8</priority></url>
-  <url><loc>https://omnitoolstudio.com/los-angeles-to-london-time-converter</loc><priority>0.8</priority></url>
-  <url><loc>https://omnitoolstudio.com/unix-timestamp-to-date-converter</loc><priority>0.8</priority></url>
-  <url><loc>https://omnitoolstudio.com/json-formatter-online</loc><priority>0.8</priority></url>
-  <url><loc>https://omnitoolstudio.com/base64-encoder-decoder</loc><priority>0.8</priority></url>
-  <url><loc>https://omnitoolstudio.com/csv-to-json-converter</loc><priority>0.8</priority></url>
-  <url><loc>https://omnitoolstudio.com/text-to-pdf-converter</loc><priority>0.8</priority></url>
-  <url><loc>https://omnitoolstudio.com/image-to-pdf-converter</loc><priority>0.8</priority></url>
-  <url><loc>https://omnitoolstudio.com/qr-code-generator-for-url</loc><priority>0.8</priority></url>
-  <url><loc>https://omnitoolstudio.com/qr-code-generator-for-text</loc><priority>0.8</priority></url>
-  <url><loc>https://omnitoolstudio.com/essay-word-counter</loc><priority>0.8</priority></url>
-  <url><loc>https://omnitoolstudio.com/character-counter</loc><priority>0.8</priority></url>
-  <url><loc>https://omnitoolstudio.com/online-notepad-no-login</loc><priority>0.8</priority></url>
-  <url><loc>https://omnitoolstudio.com/pomodoro-countdown-timer</loc><priority>0.8</priority></url>
-  <url><loc>https://omnitoolstudio.com/online-stopwatch-with-laps</loc><priority>0.8</priority></url>
-  <url><loc>https://omnitoolstudio.com/strong-password-generator</loc><priority>0.8</priority></url>
-  <url><loc>https://omnitoolstudio.com/slug-generator</loc><priority>0.8</priority></url>
-  <url><loc>https://omnitoolstudio.com/uppercase-lowercase-converter</loc><priority>0.8</priority></url>
+  <url><loc>https://omnitoolstudio.com/percent-off-calculator</loc><priority>0.9</priority></url>
+  <url><loc>https://omnitoolstudio.com/25-percent-off-calculator</loc><priority>0.9</priority></url>
+  <url><loc>https://omnitoolstudio.com/50-percent-off-calculator</loc><priority>0.9</priority></url>
+  <url><loc>https://omnitoolstudio.com/discount-calculator-with-tax</loc><priority>0.9</priority></url>
+  <url><loc>https://omnitoolstudio.com/sale-price-calculator</loc><priority>0.9</priority></url>
+  <url><loc>https://omnitoolstudio.com/days-between-dates-calculator</loc><priority>0.9</priority></url>
+  <url><loc>https://omnitoolstudio.com/business-days-between-dates</loc><priority>0.9</priority></url>
+  <url><loc>https://omnitoolstudio.com/age-calculator</loc><priority>0.9</priority></url>
+  <url><loc>https://omnitoolstudio.com/date-calculator-add-days</loc><priority>0.9</priority></url>
+  <url><loc>https://omnitoolstudio.com/day-of-week-calculator</loc><priority>0.9</priority></url>
+  <url><loc>https://omnitoolstudio.com/loan-payment-calculator</loc><priority>0.9</priority></url>
+  <url><loc>https://omnitoolstudio.com/monthly-loan-payment-calculator</loc><priority>0.9</priority></url>
+  <url><loc>https://omnitoolstudio.com/savings-goal-calculator</loc><priority>0.9</priority></url>
+  <url><loc>https://omnitoolstudio.com/hourly-to-salary-calculator</loc><priority>0.9</priority></url>
+  <url><loc>https://omnitoolstudio.com/salary-to-hourly-calculator</loc><priority>0.9</priority></url>
+  <url><loc>https://omnitoolstudio.com/character-counter</loc><priority>0.9</priority></url>
+  <url><loc>https://omnitoolstudio.com/timestamp-to-date-converter</loc><priority>0.9</priority></url>
+  <url><loc>https://omnitoolstudio.com/kg-to-lbs-converter</loc><priority>0.9</priority></url>
+  <url><loc>https://omnitoolstudio.com/lbs-to-kg-converter</loc><priority>0.9</priority></url>
+  <url><loc>https://omnitoolstudio.com/celsius-to-fahrenheit-converter</loc><priority>0.9</priority></url>
+  <url><loc>https://omnitoolstudio.com/fahrenheit-to-celsius-converter</loc><priority>0.9</priority></url>
+  <url><loc>https://omnitoolstudio.com/mb-to-gb-converter</loc><priority>0.9</priority></url>
   <url><loc>https://omnitoolstudio.com/blog/how-to-calculate-a-discount</loc><priority>0.7</priority></url>
   <url><loc>https://omnitoolstudio.com/blog/how-much-should-you-tip</loc><priority>0.7</priority></url>
   <url><loc>https://omnitoolstudio.com/blog/student-monthly-budget-basics</loc><priority>0.7</priority></url>

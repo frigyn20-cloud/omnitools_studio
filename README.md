@@ -1,6 +1,6 @@
 # OmniTool Studio
 
-OmniTool Studio is a public utility website with calculators, converters, quick tools, SEO guide pages, blog articles, English/Spanish language support, light/dark mode, and AdSense-ready placeholder sections.
+OmniTool Studio is a public utility website with calculators, converters, quick tools, 25 focused SEO guide pages, blog articles, English/Spanish language support, and light/dark mode.
 
 ## Deploy on Vercel
 
@@ -16,13 +16,12 @@ The project includes `vercel.json` so clean URLs like `/discount-calculator` and
 
 Open `DEPLOYMENT.md` and follow the full launch checklist. The most important steps are:
 
-1. Replace `https://your-domain.com` in `client/public/sitemap.xml` and `client/public/robots.txt`.
-2. Add your public contact email on the Contact page.
+1. Confirm `client/public/sitemap.xml` and `client/public/robots.txt` use `https://omnitoolstudio.com`.
+2. Confirm the Contact page lists `kirill.moiseev.prof@gmail.com`.
 3. Deploy to Vercel.
 4. Connect your custom domain.
 5. Submit the sitemap to Google Search Console.
-6. Apply to Google AdSense.
-7. Update `client/public/ads.txt` after AdSense gives you a publisher ID.
+6. Test the 25 SEO pages listed in `sitemap.xml`.
 
 ## Local test
 
@@ -31,4 +30,3 @@ npm install
 npm run build
 npm start
 ```
-

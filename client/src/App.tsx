@@ -53,6 +53,9 @@ type SeoLanding = {
   toolSlug: string;
   useCase: string;
   steps: string[];
+  example?: string;
+  howWorks?: string;
+  equation?: string;
 };
 
 type BlogPost = {
@@ -135,46 +138,31 @@ const toolTranslations: Record<string, { name: string; description: string; keyw
 };
 
 const seoLandings: SeoLanding[] = [
-  { slug: "25-percent-off-calculator", title: "25% Off Calculator", description: "Calculate the sale price, discount saved, tax, and final total when an item is 25 percent off.", toolSlug: "discount-calculator", useCase: "This page is useful when a store shows a 25% discount and you want to know the real checkout price before buying.", steps: ["Enter the original price.", "Set the discount field to 25%.", "Add your local sales tax if needed.", "Compare the final total with your budget."] },
-  { slug: "20-percent-off-calculator", title: "20% Off Calculator", description: "Quickly calculate a 20 percent discount, amount saved, and final price after tax.", toolSlug: "discount-calculator", useCase: "Use this when a product is marked 20% off and you need a fast estimate of the real price.", steps: ["Enter the sticker price.", "Set discount to 20%.", "Add tax if the store applies sales tax.", "Use the final total to decide if the deal is worth it."] },
-  { slug: "30-percent-off-calculator", title: "30% Off Calculator", description: "Find the final sale price and savings for 30 percent off deals.", toolSlug: "discount-calculator", useCase: "Great for clothing, electronics, and seasonal sales where the discount is listed as 30% off.", steps: ["Type the original price.", "Use 30 in the discount field.", "Add tax if you want a checkout estimate.", "Review discount saved and final total."] },
-  { slug: "discount-calculator-with-sales-tax", title: "Discount Calculator With Sales Tax", description: "Calculate discount savings and estimated after-tax checkout total in one place.", toolSlug: "discount-calculator", useCase: "Use this when the sale sign shows the discount, but you still need to include tax.", steps: ["Enter original price.", "Enter discount percentage.", "Enter sales tax percentage.", "Check the final total."] },
-  { slug: "tip-calculator-for-2-people", title: "Tip Calculator for 2 People", description: "Split a restaurant bill and tip between two people.", toolSlug: "tip-calculator", useCase: "Use this for dates, lunches, coffee meetings, and shared restaurant bills.", steps: ["Enter the bill amount.", "Choose your tip percentage.", "Set people to 2.", "Use the per-person result."] },
-  { slug: "tip-calculator-for-4-people", title: "Tip Calculator for 4 People", description: "Calculate tip and split a bill evenly between four people.", toolSlug: "tip-calculator", useCase: "Useful for group dinners when everyone wants a quick fair split.", steps: ["Enter the total bill.", "Pick 15%, 18%, 20%, or another tip.", "Set people to 4.", "Share the per-person amount."] },
-  { slug: "20-percent-tip-calculator", title: "20% Tip Calculator", description: "Calculate a 20 percent tip and total bill amount.", toolSlug: "tip-calculator", useCase: "Use this when you want a standard strong tip without doing mental math.", steps: ["Enter the restaurant bill.", "Set tip to 20%.", "Add the number of people if splitting.", "Review total and per-person cost."] },
-  { slug: "monthly-budget-calculator-students", title: "Monthly Budget Calculator for Students", description: "Plan student income, expenses, and savings goals month by month.", toolSlug: "budget-calculator", useCase: "Helpful for students balancing part-time work, rent, food, school costs, and savings.", steps: ["Enter monthly income.", "Add fixed expenses like rent and subscriptions.", "Add flexible expenses like food and gas.", "Set a savings target and review remaining money."] },
-  { slug: "monthly-savings-goal-calculator", title: "Monthly Savings Goal Calculator", description: "Estimate how much you can save monthly after expenses.", toolSlug: "budget-calculator", useCase: "Use this before setting a savings goal for travel, emergency funds, school, or a purchase.", steps: ["Enter income.", "Enter fixed and variable costs.", "Add desired savings.", "Check if the plan is realistic."] },
-  { slug: "car-loan-payment-calculator", title: "Car Loan Payment Calculator", description: "Estimate monthly car loan payments and total interest.", toolSlug: "loan-calculator", useCase: "Use this before visiting a dealership or comparing financing offers.", steps: ["Enter loan amount.", "Enter interest rate.", "Choose loan term.", "Review monthly payment and total interest."] },
-  { slug: "personal-loan-payment-calculator", title: "Personal Loan Payment Calculator", description: "Calculate estimated personal loan payments by amount, rate, and term.", toolSlug: "loan-calculator", useCase: "Useful for comparing loan options before applying.", steps: ["Enter the borrowed amount.", "Add APR or interest rate.", "Enter the term in years.", "Compare the payment with your budget."] },
-  { slug: "compound-interest-savings-calculator", title: "Compound Interest Savings Calculator", description: "Project savings growth with deposits and compound interest.", toolSlug: "savings-calculator", useCase: "Use this to see how monthly deposits can grow over time.", steps: ["Enter starting savings.", "Add monthly contribution.", "Enter expected annual return.", "Set the number of years."] },
-  { slug: "emergency-fund-calculator", title: "Emergency Fund Calculator", description: "Plan a savings target for emergency expenses.", toolSlug: "savings-calculator", useCase: "Helpful when building three to six months of basic expenses.", steps: ["Estimate monthly expenses.", "Choose a target number of months.", "Enter current savings.", "Use the savings tool to project progress."] },
-  { slug: "daily-calorie-calculator-for-weight-loss", title: "Daily Calorie Calculator for Weight Loss", description: "Estimate daily calories and adjust for a weight-loss goal.", toolSlug: "calorie-calculator", useCase: "Use this for a simple maintenance estimate before creating a calorie deficit.", steps: ["Enter age, height, weight, and activity level.", "Review estimated maintenance calories.", "Subtract a reasonable deficit.", "Track progress and adjust carefully."] },
-  { slug: "bmr-calculator", title: "BMR Calculator", description: "Estimate basal metabolic rate and daily calorie needs.", toolSlug: "calorie-calculator", useCase: "Useful for understanding a rough baseline before planning nutrition.", steps: ["Enter personal body details.", "Choose activity level.", "Review BMR and daily target.", "Treat results as estimates, not medical advice."] },
-  { slug: "days-between-dates-calculator", title: "Days Between Dates Calculator", description: "Count the number of days between two dates.", toolSlug: "date-calculator", useCase: "Use this for deadlines, trips, assignments, billing periods, and countdown planning.", steps: ["Choose the start date.", "Choose the end date.", "Review the day difference.", "Use date add if you need a future deadline."] },
-  { slug: "add-days-to-date-calculator", title: "Add Days to Date Calculator", description: "Add a number of days to any date and find the result.", toolSlug: "date-calculator", useCase: "Helpful for project deadlines, return windows, study plans, and reminders.", steps: ["Enter the starting date.", "Enter days to add.", "Review the resulting date.", "Save or copy the date if needed."] },
-  { slug: "meters-to-feet-converter", title: "Meters to Feet Converter", description: "Convert meters to feet quickly using the unit converter.", toolSlug: "unit-converter", useCase: "Useful for travel, school, real estate dimensions, and fitness measurements.", steps: ["Open the unit converter.", "Choose length.", "Enter meters.", "Read the feet result."] },
-  { slug: "kg-to-pounds-converter", title: "Kg to Pounds Converter", description: "Convert kilograms to pounds for weight measurements.", toolSlug: "unit-converter", useCase: "Use this for fitness, shipping, travel luggage, or product weights.", steps: ["Choose weight units.", "Enter kilograms.", "Select pounds as the output.", "Use the converted result."] },
-  { slug: "celsius-to-fahrenheit-converter", title: "Celsius to Fahrenheit Converter", description: "Convert Celsius temperatures to Fahrenheit.", toolSlug: "unit-converter", useCase: "Useful for weather, recipes, travel, and schoolwork.", steps: ["Choose temperature conversion.", "Enter Celsius.", "Review Fahrenheit.", "Reverse the units if needed."] },
-  { slug: "usd-to-eur-converter", title: "USD to EUR Converter", description: "Estimate United States dollar to euro conversions.", toolSlug: "currency-converter", useCase: "Use this for travel planning, online shopping, and quick international estimates.", steps: ["Enter USD amount.", "Choose EUR as the target currency.", "Review live or fallback rate result.", "Check your bank for final fees."] },
-  { slug: "usd-to-mxn-converter", title: "USD to MXN Converter", description: "Estimate United States dollar to Mexican peso conversions.", toolSlug: "currency-converter", useCase: "Useful for travel, shopping, and quick cross-border estimates.", steps: ["Enter USD amount.", "Select MXN.", "Review the converted result.", "Remember exchange fees may differ."] },
-  { slug: "los-angeles-to-new-york-time-converter", title: "Los Angeles to New York Time Converter", description: "Compare Los Angeles and New York time zones.", toolSlug: "time-zone-converter", useCase: "Great for calls, classes, meetings, and deadlines across US time zones.", steps: ["Open the time zone converter.", "Compare Los Angeles and New York.", "Choose a meeting time.", "Confirm AM and PM carefully."] },
-  { slug: "los-angeles-to-london-time-converter", title: "Los Angeles to London Time Converter", description: "Compare Los Angeles and London times for meetings and travel.", toolSlug: "time-zone-converter", useCase: "Use this when scheduling with someone in the UK.", steps: ["Select Los Angeles.", "Compare with London.", "Pick a reasonable time window.", "Confirm the date because time zones may cross midnight."] },
-  { slug: "unix-timestamp-to-date-converter", title: "Unix Timestamp to Date Converter", description: "Convert Unix timestamps into readable dates.", toolSlug: "timestamp-converter", useCase: "Useful for developers, spreadsheets, logs, and data cleanup.", steps: ["Paste the Unix timestamp.", "Review ISO and local date formats.", "Copy the readable result.", "Check seconds versus milliseconds if needed."] },
-  { slug: "json-formatter-online", title: "JSON Formatter Online", description: "Format, minify, and clean JSON text online.", toolSlug: "data-format-converter", useCase: "Use this when API or spreadsheet data is hard to read.", steps: ["Paste JSON text.", "Choose format or minify.", "Review the cleaned output.", "Copy the result."] },
-  { slug: "base64-encoder-decoder", title: "Base64 Encoder and Decoder", description: "Encode text to Base64 or decode Base64 back to text.", toolSlug: "data-format-converter", useCase: "Helpful for simple data encoding, testing, and developer workflows.", steps: ["Paste text or Base64.", "Choose encode or decode.", "Review the output.", "Copy the result."] },
-  { slug: "csv-to-json-converter", title: "CSV to JSON Converter", description: "Convert simple CSV text into JSON.", toolSlug: "data-format-converter", useCase: "Use this when moving spreadsheet-style data into apps or scripts.", steps: ["Paste CSV rows.", "Choose CSV to JSON.", "Review the structured output.", "Copy the JSON."] },
-  { slug: "text-to-pdf-converter", title: "Text to PDF Converter", description: "Create a simple PDF from text.", toolSlug: "file-to-pdf-converter", useCase: "Use this for notes, simple documents, receipts, or quick exports.", steps: ["Open the PDF converter.", "Paste or upload text.", "Generate the PDF.", "Download the file."] },
-  { slug: "image-to-pdf-converter", title: "Image to PDF Converter", description: "Turn PNG or JPG images into a simple PDF.", toolSlug: "file-to-pdf-converter", useCase: "Useful for combining screenshots, receipts, or homework images into a PDF.", steps: ["Upload an image.", "Generate the PDF.", "Preview the output if needed.", "Download the PDF."] },
-  { slug: "qr-code-generator-for-url", title: "QR Code Generator for URL", description: "Create a QR code for a website link.", toolSlug: "qr-code-generator", useCase: "Use this for flyers, business cards, events, and quick link sharing.", steps: ["Paste the URL.", "Generate the QR code.", "Download the image.", "Test the code with your phone."] },
-  { slug: "qr-code-generator-for-text", title: "QR Code Generator for Text", description: "Create a QR code from plain text.", toolSlug: "qr-code-generator", useCase: "Useful for notes, Wi-Fi instructions, short messages, or event details.", steps: ["Type your text.", "Generate the QR code.", "Download it.", "Scan it to confirm it works."] },
-  { slug: "essay-word-counter", title: "Essay Word Counter", description: "Count words, characters, sentences, and reading time for essays.", toolSlug: "word-counter", useCase: "Helpful for school assignments, application essays, and writing limits.", steps: ["Paste your essay.", "Review word and character counts.", "Check reading time.", "Edit until you meet the requirement."] },
-  { slug: "character-counter", title: "Character Counter", description: "Count characters for posts, bios, titles, and descriptions.", toolSlug: "word-counter", useCase: "Use this for social posts, meta descriptions, form limits, and short bios.", steps: ["Paste your text.", "Review character count.", "Shorten or expand as needed.", "Copy the finished text."] },
-  { slug: "online-notepad-no-login", title: "Online Notepad No Login", description: "Use a fast temporary notepad without creating an account.", toolSlug: "online-notepad", useCase: "Great for quick notes during studying, calls, or browsing.", steps: ["Open the notes tool.", "Type your note.", "Keep it during the session.", "Download it if you want to save it."] },
-  { slug: "pomodoro-countdown-timer", title: "Pomodoro Countdown Timer", description: "Use a simple countdown timer for focus sessions.", toolSlug: "countdown-timer", useCase: "Useful for 25-minute study blocks, workouts, breaks, and timed tasks.", steps: ["Set the countdown length.", "Start the timer.", "Focus until it ends.", "Reset for the next session."] },
-  { slug: "online-stopwatch-with-laps", title: "Online Stopwatch With Laps", description: "Track elapsed time and laps in the browser.", toolSlug: "online-stopwatch", useCase: "Use this for workouts, studying, calls, or practice sessions.", steps: ["Start the stopwatch.", "Add laps when needed.", "Pause or reset.", "Review elapsed time."] },
-  { slug: "strong-password-generator", title: "Strong Password Generator", description: "Generate strong random passwords online.", toolSlug: "password-generator", useCase: "Use this when creating new accounts or replacing weak passwords.", steps: ["Choose password length.", "Generate a password.", "Copy it.", "Save it in a password manager."] },
-  { slug: "slug-generator", title: "Slug Generator", description: "Turn text into clean URL slugs.", toolSlug: "text-tools", useCase: "Useful for blog titles, page URLs, filenames, and SEO-friendly links.", steps: ["Paste your title.", "Choose slug output.", "Review the result.", "Copy the clean slug."] },
-  { slug: "uppercase-lowercase-converter", title: "Uppercase and Lowercase Converter", description: "Convert text to uppercase, lowercase, title case, and more.", toolSlug: "text-tools", useCase: "Use this for titles, captions, documents, and quick text cleanup.", steps: ["Paste text.", "Choose the format you need.", "Review the transformed text.", "Copy the result."] },
+  { slug: "percent-off-calculator", title: "Percent Off Calculator", description: "Calculate any percent-off discount, the amount saved, the sale price before tax, and the final total after tax.", toolSlug: "discount-calculator", useCase: "Use this page when a sale tag says 10%, 15%, 30%, or any other percent off and you want the real checkout estimate.", steps: ["Enter the original price.", "Enter the percent-off discount.", "Add sales tax if you want the final checkout estimate.", "Review the amount saved, sale price, and total."], example: "A $120 item with 25% off saves $30. The sale price before tax is $90, and with 9.5% tax the estimated total is $98.55.", howWorks: "The calculator converts the discount percentage into a decimal, multiplies it by the original price to find savings, subtracts the savings from the original price, then optionally adds sales tax.", equation: "Savings = Price × Discount %. Sale price = Price - Savings. Final total = Sale price × (1 + Tax %)." },
+  { slug: "25-percent-off-calculator", title: "25 Percent Off Calculator", description: "Find the sale price, savings, and estimated after-tax total for a 25% discount.", toolSlug: "discount-calculator", useCase: "Use this page for common retail promotions where an item is marked 25% off.", steps: ["Enter the original price.", "Use 25 in the discount field.", "Enter tax if needed.", "Compare the final total with your budget."], example: "If the original price is $80, 25% off saves $20 and the sale price before tax is $60.", howWorks: "A 25% discount means you pay 75% of the original price before taxes or fees.", equation: "Sale price = Price × 0.75. Savings = Price × 0.25." },
+  { slug: "50-percent-off-calculator", title: "50 Percent Off Calculator", description: "Calculate half-off sale prices, savings, and checkout totals with optional sales tax.", toolSlug: "discount-calculator", useCase: "Use this for clearance, Black Friday, seasonal sale, or buy-one-half-off price checks.", steps: ["Enter the original price.", "Set discount to 50.", "Add tax if you need checkout total.", "Review the half-price amount and savings."], example: "A $150 jacket at 50% off saves $75, leaving a $75 sale price before tax.", howWorks: "A 50% discount cuts the original price in half before any sales tax is applied.", equation: "Sale price = Price ÷ 2. Savings = Price ÷ 2." },
+  { slug: "discount-calculator-with-tax", title: "Discount Calculator With Tax", description: "Calculate the discounted price and then add sales tax to estimate the final checkout total.", toolSlug: "discount-calculator", useCase: "Use this when a discount looks good but you need to know the total after local tax.", steps: ["Enter original price.", "Enter discount percentage.", "Enter your local tax rate.", "Read the final total after discount and tax."], example: "A $200 item with 15% off becomes $170 before tax. With 8% tax, the estimated total is $183.60.", howWorks: "The discount is applied first. Sales tax is calculated on the discounted sale price, not the original price.", equation: "Discounted price = Price × (1 - Discount %). Final total = Discounted price × (1 + Tax %)." },
+  { slug: "sale-price-calculator", title: "Sale Price Calculator", description: "Estimate the sale price of an item after a discount and optional sales tax.", toolSlug: "discount-calculator", useCase: "Use this for shopping decisions, comparing promotions, and checking whether a sale is actually worth it.", steps: ["Type the regular price.", "Type the sale discount.", "Add tax if you want the checkout estimate.", "Use the sale price and savings to compare deals."], example: "If shoes cost $95 and are 30% off, the sale price is $66.50 before tax.", howWorks: "The sale price is the original price minus the discount value. The discount value is based on the percentage shown by the store.", equation: "Discount value = Regular price × Discount %. Sale price = Regular price - Discount value." },
+  { slug: "days-between-dates-calculator", title: "Days Between Dates Calculator", description: "Count calendar days between two dates for deadlines, trips, billing periods, and planning.", toolSlug: "date-calculator", useCase: "Use this when you need to know how many days are between a start date and an end date.", steps: ["Choose the start date.", "Choose the comparison date.", "Review the days between result.", "Use the answer for planning or scheduling."], example: "From May 1 to May 31, there are 30 days between the dates when counting elapsed days.", howWorks: "The calculator converts both dates into date values and subtracts the earlier date from the later date.", equation: "Days between = End date - Start date." },
+  { slug: "business-days-between-dates", title: "Business Days Between Dates", description: "Estimate weekday business days between two dates by excluding Saturdays and Sundays.", toolSlug: "date-calculator", useCase: "Use this for work deadlines, school timelines, shipping estimates, and project planning.", steps: ["Enter the start date.", "Enter the end date.", "Count weekdays between the dates.", "Adjust manually for holidays if needed."], example: "A Monday-to-Friday range in the same week has 4 elapsed business days if you count days after the start date.", howWorks: "Business-day estimates count weekdays and exclude weekend dates. Public holidays vary by country and are not automatically included in the basic estimate.", equation: "Business days = Calendar days - Saturdays - Sundays - Holidays you manually exclude." },
+  { slug: "age-calculator", title: "Age Calculator", description: "Calculate age or elapsed time between a birth date and another date.", toolSlug: "date-calculator", useCase: "Use this for age checks, applications, school forms, and milestone planning.", steps: ["Enter the birth date as the start date.", "Enter today or another comparison date.", "Review the difference in days.", "Convert the result into years if needed."], example: "Someone born on May 4, 2000 is about 26 years old on May 4, 2026.", howWorks: "Age is based on the difference between the birth date and the comparison date, with full years counted after each birthday passes.", equation: "Approximate age in years = Days between dates ÷ 365.2425." },
+  { slug: "date-calculator-add-days", title: "Date Calculator Add Days", description: "Add a number of days to a date to find a future deadline or target date.", toolSlug: "date-calculator", useCase: "Use this for return windows, project due dates, reminders, travel planning, and school assignments.", steps: ["Choose the starting date.", "Enter the number of days to add.", "Read the resulting date.", "Check weekends or holidays if the deadline is business-related."], example: "Adding 45 days to May 4, 2026 gives a future planning date in mid-June 2026.", howWorks: "The calculator adds the selected number of calendar days to the starting date.", equation: "Result date = Start date + Number of days." },
+  { slug: "day-of-week-calculator", title: "Day of Week Calculator", description: "Find the weekday for a date by using date math and calendar rules.", toolSlug: "date-calculator", useCase: "Use this to check whether a future event, deadline, birthday, or travel date falls on a weekday or weekend.", steps: ["Enter the date you want to check.", "Use the date calculator result as a reference.", "Compare the date in your device calendar if needed.", "Plan around weekends or workdays."], example: "If a deadline lands on Saturday, you may want to plan for the Friday before it.", howWorks: "Day-of-week calculations map a date to a seven-day cycle. Calendar systems use leap-year rules to keep the cycle aligned over time.", equation: "Weekday index = Date serial number mod 7." },
+  { slug: "loan-payment-calculator", title: "Loan Payment Calculator", description: "Estimate a loan payment using loan amount, annual interest rate, and repayment term.", toolSlug: "loan-calculator", useCase: "Use this before comparing personal loans, car loans, student loans, or financing offers.", steps: ["Enter the loan amount.", "Enter the APR or interest rate.", "Enter the term in years.", "Review monthly payment, total paid, and total interest."], example: "A $25,000 loan at 7% APR for 5 years has an estimated monthly payment of about $495.", howWorks: "The loan tool uses a standard amortization formula that spreads principal and interest across equal monthly payments.", equation: "Payment = P × r ÷ (1 - (1 + r)^-n), where P is principal, r is monthly rate, and n is number of payments." },
+  { slug: "monthly-loan-payment-calculator", title: "Monthly Loan Payment Calculator", description: "Calculate the estimated monthly payment for a fixed-rate loan.", toolSlug: "loan-calculator", useCase: "Use this when you care most about whether a payment fits your monthly budget.", steps: ["Enter borrowed amount.", "Add interest rate.", "Choose repayment term.", "Compare the monthly payment against your income and expenses."], example: "A smaller payment can come from a longer term, but the total interest usually increases.", howWorks: "Monthly payment depends on principal, monthly interest rate, and number of monthly payments.", equation: "Monthly rate = APR ÷ 12. Number of payments = Years × 12." },
+  { slug: "savings-goal-calculator", title: "Savings Goal Calculator", description: "Project savings growth from a starting balance, monthly deposits, interest rate, and time horizon.", toolSlug: "savings-calculator", useCase: "Use this for emergency funds, travel, school costs, a car down payment, or any planned purchase.", steps: ["Enter your starting savings.", "Enter monthly deposit.", "Enter expected APY.", "Choose the number of years and review the future value."], example: "Starting with $1,000 and adding $250 monthly can build a meaningful savings balance over several years.", howWorks: "The calculator compounds growth monthly and adds regular deposits to estimate a future balance.", equation: "Future value ≈ Starting balance × (1 + monthly rate)^months + deposits accumulated with compound growth." },
+  { slug: "hourly-to-salary-calculator", title: "Hourly to Salary Calculator", description: "Convert an hourly wage into estimated weekly, monthly, and annual salary.", toolSlug: "budget-calculator", useCase: "Use this to compare hourly jobs, internship offers, part-time schedules, and full-time salary equivalents.", steps: ["Enter hourly pay as monthly income manually or calculate it separately.", "Multiply hourly wage by hours per week.", "Multiply weekly pay by 52 for annual salary.", "Compare estimated income with expenses in the budget tool."], example: "$25 per hour at 40 hours per week is about $52,000 per year before taxes.", howWorks: "Salary conversion multiplies hourly pay by weekly hours and the number of paid weeks per year.", equation: "Annual salary = Hourly wage × Hours per week × 52." },
+  { slug: "salary-to-hourly-calculator", title: "Salary to Hourly Calculator", description: "Convert annual salary into an estimated hourly wage.", toolSlug: "budget-calculator", useCase: "Use this to compare salary jobs with hourly work or understand the hourly value of an offer.", steps: ["Start with annual salary.", "Choose weekly hours.", "Divide salary by annual work hours.", "Use the result to compare offers."], example: "A $60,000 salary at 40 hours per week is about $28.85 per hour before taxes.", howWorks: "The calculator divides yearly pay by estimated yearly work hours.", equation: "Hourly wage = Annual salary ÷ (Hours per week × 52)." },
+  { slug: "word-counter", title: "Word Counter", description: "Count words, characters, sentences, and estimated reading time for text.", toolSlug: "word-counter", useCase: "Use this for essays, applications, blog posts, social captions, descriptions, and writing assignments.", steps: ["Paste or type your text.", "Review word count and character count.", "Check sentence count and reading time.", "Edit the text until it matches your limit."], example: "A 750-word essay at about 200 words per minute takes roughly 4 minutes to read.", howWorks: "The tool splits text by spaces for words, counts all characters, and estimates reading time from word count.", equation: "Reading time ≈ Word count ÷ 200 words per minute." },
+  { slug: "character-counter", title: "Character Counter", description: "Count characters for titles, bios, meta descriptions, posts, and form limits.", toolSlug: "word-counter", useCase: "Use this when a platform limits the number of characters you can submit.", steps: ["Paste the text.", "Check total characters.", "Shorten or expand the copy.", "Copy the final version."], example: "A search meta description often works best when it is concise, clear, and under common display limits.", howWorks: "The counter measures every character in the text, including letters, numbers, punctuation, spaces, and line breaks.", equation: "Character count = Total number of text characters." },
+  { slug: "qr-code-generator", title: "QR Code Generator", description: "Generate a QR code for a URL, text, contact detail, event note, or quick message.", toolSlug: "qr-code-generator", useCase: "Use this for flyers, business cards, menus, presentations, classroom materials, or quick link sharing.", steps: ["Enter the URL or text.", "Generate the QR code.", "Download the QR image.", "Scan it with your phone to confirm it works."], example: "A flyer can include a QR code that opens https://omnitoolstudio.com/ without people typing the full address.", howWorks: "A QR code stores text data as a machine-readable pattern. Phone cameras decode the pattern and open or display the content.", equation: "QR output = Encoded text data + error correction pattern." },
+  { slug: "password-generator", title: "Password Generator", description: "Create strong random passwords for accounts, logins, and password managers.", toolSlug: "password-generator", useCase: "Use this when creating new accounts or replacing short, reused, or weak passwords.", steps: ["Choose password length.", "Generate a random password.", "Copy it.", "Save it in a password manager."], example: "A 20-character random password is usually stronger than a short memorable password.", howWorks: "The generator chooses random characters from an allowed character set. Longer passwords and larger character sets increase the possible combinations.", equation: "Possible combinations = Character set size ^ Password length." },
+  { slug: "timestamp-to-date-converter", title: "Timestamp to Date Converter", description: "Convert Unix timestamps into readable local and ISO date formats.", toolSlug: "timestamp-converter", useCase: "Use this for logs, spreadsheets, developer tools, exported data, and troubleshooting date fields.", steps: ["Paste the Unix timestamp.", "Check whether it is seconds or milliseconds.", "Review ISO and local date output.", "Copy the readable date."], example: "A Unix timestamp can represent a specific second in time, which is easier to understand after conversion to a normal date.", howWorks: "Unix timestamps count elapsed time from January 1, 1970 UTC. The converter turns that number into a calendar date.", equation: "Date = Unix epoch + Timestamp seconds." },
+  { slug: "kg-to-lbs-converter", title: "Kg to Lbs Converter", description: "Convert kilograms to pounds for weight, shipping, fitness, and travel measurements.", toolSlug: "unit-converter", useCase: "Use this for gym weights, body weight, luggage, packages, and product weights.", steps: ["Choose the weight conversion type.", "Enter kilograms.", "Select pounds as the output.", "Read the converted value."], example: "10 kilograms is about 22.05 pounds.", howWorks: "The converter multiplies kilograms by the standard kilogram-to-pound conversion factor.", equation: "Pounds = Kilograms × 2.20462." },
+  { slug: "lbs-to-kg-converter", title: "Lbs to Kg Converter", description: "Convert pounds to kilograms for weight, fitness, shipping, and international measurements.", toolSlug: "unit-converter", useCase: "Use this when a weight is listed in pounds but you need the metric equivalent.", steps: ["Choose weight conversion.", "Enter pounds.", "Select kilograms as the output.", "Use the converted result."], example: "150 pounds is about 68.04 kilograms.", howWorks: "The converter divides pounds by the standard pounds-per-kilogram conversion factor.", equation: "Kilograms = Pounds ÷ 2.20462." },
+  { slug: "celsius-to-fahrenheit-converter", title: "Celsius to Fahrenheit Converter", description: "Convert Celsius temperatures to Fahrenheit for weather, cooking, school, and travel.", toolSlug: "unit-converter", useCase: "Use this when a temperature is shown in Celsius but you need Fahrenheit.", steps: ["Enter the Celsius temperature.", "Select Fahrenheit as the output.", "Review the result.", "Round the answer if needed."], example: "20°C equals 68°F.", howWorks: "Celsius and Fahrenheit use different zero points and scale sizes, so the conversion multiplies by 9/5 and adds 32.", equation: "°F = (°C × 9/5) + 32." },
+  { slug: "fahrenheit-to-celsius-converter", title: "Fahrenheit to Celsius Converter", description: "Convert Fahrenheit temperatures to Celsius for weather, recipes, science, and travel.", toolSlug: "unit-converter", useCase: "Use this when a temperature is shown in Fahrenheit but you need Celsius.", steps: ["Enter the Fahrenheit temperature.", "Select Celsius as the output.", "Review the result.", "Round if needed for everyday use."], example: "68°F equals 20°C.", howWorks: "The conversion subtracts 32 to align the zero point, then multiplies by 5/9 to convert the scale.", equation: "°C = (°F - 32) × 5/9." },
+  { slug: "mb-to-gb-converter", title: "MB to GB Converter", description: "Convert megabytes to gigabytes for file sizes, storage, downloads, and data limits.", toolSlug: "unit-converter", useCase: "Use this when comparing file sizes, phone storage, cloud storage, or internet data plans.", steps: ["Enter the number of megabytes.", "Convert using the decimal storage estimate.", "Review the gigabyte result.", "Use binary conversion if a device reports GiB instead of GB."], example: "5,000 MB is about 5 GB using decimal storage units.", howWorks: "Most storage marketing uses decimal units where 1 GB equals 1,000 MB. Some operating systems use binary units where 1 GiB equals 1,024 MiB.", equation: "GB = MB ÷ 1,000. GiB estimate = MiB ÷ 1,024." },
 ];
 
 const blogPosts: BlogPost[] = [
@@ -272,12 +260,6 @@ const uiText = {
     language: "Language",
     english: "English",
     spanish: "Spanish",
-    adReserved: "AdSense slot reserved. Replace this placeholder after Google approves the site.",
-    advertisement: "Advertisement",
-    pageAdvertisement: "Page advertisement",
-    guideAdvertisement: "Guide advertisement",
-    articleAdvertisement: "Article advertisement",
-    bottomPageAdvertisement: "Bottom page advertisement",
     backToAllTools: "Back to all tools",
     runsInBrowser: "Runs in your browser",
     relatedTools: "Related tools",
@@ -323,12 +305,6 @@ const uiText = {
     language: "Idioma",
     english: "Inglés",
     spanish: "Español",
-    adReserved: "Espacio reservado para AdSense. Reemplaza este marcador después de que Google apruebe el sitio.",
-    advertisement: "Publicidad",
-    pageAdvertisement: "Publicidad de la página",
-    guideAdvertisement: "Publicidad de la guía",
-    articleAdvertisement: "Publicidad del artículo",
-    bottomPageAdvertisement: "Publicidad inferior",
     backToAllTools: "Volver a todas las herramientas",
     runsInBrowser: "Funciona en tu navegador",
     relatedTools: "Herramientas relacionadas",
@@ -399,18 +375,6 @@ function getSeoLandingCopy(landing: SeoLanding, language: Language): SeoLanding 
 
 function getBlogPostCopy(post: BlogPost, language: Language): BlogPost {
   return language === "es" ? { ...post, ...blogPostTranslationsEs[post.slug] } : post;
-}
-
-function getAdLabel(label: string, language: Language) {
-  if (language === "en") return label;
-  const map: Record<string, string> = {
-    Advertisement: uiText.es.advertisement,
-    "Page advertisement": uiText.es.pageAdvertisement,
-    "Guide advertisement": uiText.es.guideAdvertisement,
-    "Article advertisement": uiText.es.articleAdvertisement,
-    "Bottom page advertisement": uiText.es.bottomPageAdvertisement,
-  };
-  return map[label] || label;
 }
 
 const interfaceTranslationsEs: Record<string, string> = {
@@ -598,22 +562,6 @@ function SiteFooter() {
         </div>
       </div>
     </footer>
-  );
-}
-
-function AdSlot({ label = "Advertisement", compact = false }: { label?: string; compact?: boolean }) {
-  const { language } = useLanguage();
-  const text = uiText[language];
-  const labelText = getAdLabel(label, language);
-  return (
-    <aside
-      data-testid={`ad-slot-${label.toLowerCase().replace(/\s+/g, "-")}`}
-      className={`${compact ? "rounded-2xl p-3" : "rounded-3xl p-4"} border border-dashed border-primary/35 bg-accent/35 text-center`}
-      aria-label={`${label} placement reserved for AdSense`}
-    >
-      <p className="text-xs font-black uppercase tracking-[0.2em] text-primary">{labelText}</p>
-      <p className={`${compact ? "mt-1 text-xs" : "mt-2 text-sm"} text-muted-foreground`}>{text.adReserved}</p>
-    </aside>
   );
 }
 
@@ -1201,24 +1149,45 @@ function PdfTool() {
   const [status, setStatus] = useState("Choose a text, CSV, JSON, or image file.");
   const handleFile = async (file?: File) => {
     if (!file) return;
-    const pdf = new jsPDF();
-    pdf.setFontSize(16);
-    pdf.text(file.name, 14, 18);
-    pdf.setFontSize(10);
-    pdf.text(`Generated by OmniTool Studio on ${new Date().toLocaleString()}`, 14, 26);
     if (file.type.startsWith("image/")) {
       const dataUrl = await new Promise<string>((resolve) => {
         const reader = new FileReader();
         reader.onload = () => resolve(String(reader.result));
         reader.readAsDataURL(file);
       });
-      pdf.addImage(dataUrl, file.type.includes("png") ? "PNG" : "JPEG", 14, 36, 170, 120, undefined, "FAST");
+      const probePdf = new jsPDF();
+      const imageProps = probePdf.getImageProperties(dataUrl);
+      const orientation = imageProps.width >= imageProps.height ? "landscape" : "portrait";
+      const pdf = new jsPDF({ orientation, unit: "mm", format: "a4" });
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      const scale = Math.min(pageWidth / imageProps.width, pageHeight / imageProps.height);
+      const imageWidth = imageProps.width * scale;
+      const imageHeight = imageProps.height * scale;
+      const x = (pageWidth - imageWidth) / 2;
+      const y = (pageHeight - imageHeight) / 2;
+      pdf.addImage(dataUrl, file.type.includes("png") ? "PNG" : "JPEG", x, y, imageWidth, imageHeight, undefined, "FAST");
+      pdf.save(`${file.name.replace(/\.[^.]+$/, "") || "file"}.pdf`);
     } else {
       const text = await file.text();
+      const pdf = new jsPDF({ unit: "mm", format: "a4" });
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      const margin = 14;
+      const lineHeight = 6;
+      let y = margin;
       pdf.setFontSize(11);
-      pdf.text(pdf.splitTextToSize(text.slice(0, 12000), 180), 14, 38);
+      const lines = pdf.splitTextToSize(text.slice(0, 12000), pageWidth - margin * 2);
+      lines.forEach((line: string) => {
+        if (y > pageHeight - margin) {
+          pdf.addPage();
+          y = margin;
+        }
+        pdf.text(line, margin, y);
+        y += lineHeight;
+      });
+      pdf.save(`${file.name.replace(/\.[^.]+$/, "") || "file"}.pdf`);
     }
-    pdf.save(`${file.name.replace(/\.[^.]+$/, "") || "file"}.pdf`);
     setStatus(`PDF generated for ${file.name}`);
   };
   return (
@@ -1227,7 +1196,7 @@ function PdfTool() {
         <label className="flex min-h-[12rem] cursor-pointer flex-col items-center justify-center gap-3 rounded-2xl bg-card/70 p-6 text-center transition hover:bg-card">
           <Download className="h-8 w-8 text-primary" aria-hidden="true" />
           <span className="text-sm font-black">Drop in a file or click to choose</span>
-          <span className="max-w-sm text-sm text-muted-foreground">Best for text, CSV, JSON, PNG, and JPG. Other file types receive a cover page with metadata.</span>
+          <span className="max-w-sm text-sm text-muted-foreground">Best for text, CSV, JSON, PNG, and JPG. The PDF contains only your file content with no added title, watermark, or generated text.</span>
           <input data-testid="input-file-pdf" className="sr-only" type="file" onChange={(event) => handleFile(event.target.files?.[0])} />
         </label>
       </div>
@@ -1467,9 +1436,6 @@ function StaticPageLayout({
           <p className="mt-3 text-sm leading-6 text-muted-foreground">{description}</p>
           <div className="mt-7 space-y-7 text-sm leading-7 text-foreground">{children}</div>
         </article>
-        <div className="mt-5">
-          <AdSlot label="Bottom page advertisement" />
-        </div>
       </main>
       <SiteFooter />
     </div>
@@ -1513,7 +1479,7 @@ function ContactPage() {
       <section>
         <h2 className="text-lg font-black tracking-[-0.02em]">Public contact email</h2>
         <p className="mt-3 text-muted-foreground">
-          Gmail: kirill.moiseev.prof@gmail.com
+          For questions, bug reports, correction suggestions, or business inquiries, email kirill.moiseev.prof@gmail.com. Please include the page URL from https://omnitoolstudio.com/ when you report an issue.
         </p>
       </section>
       <section className="rounded-3xl bg-secondary p-5">
@@ -1548,15 +1514,9 @@ function PrivacyPage() {
         </p>
       </section>
       <section>
-        <h2 className="text-lg font-black tracking-[-0.02em]">Advertising and cookies</h2>
-        <p className="mt-3 text-muted-foreground">
-          If Google AdSense or another ad network is added, advertising partners may use cookies or similar technologies to serve, measure, and personalize ads according to their own policies and consent requirements. Ad placeholders on the current site are not active ad network code.
-        </p>
-      </section>
-      <section>
         <h2 className="text-lg font-black tracking-[-0.02em]">Contact</h2>
         <p className="mt-3 text-muted-foreground">
-          Replace this paragraph with your public support email before submitting the site for ad approval or publishing it on a custom domain.
+          For privacy questions, corrections, or support requests, email kirill.moiseev.prof@gmail.com.
         </p>
       </section>
     </StaticPageLayout>
@@ -1630,9 +1590,6 @@ function ToolPage() {
               <span className="rounded-xl border border-border/70 bg-card px-4 py-2 text-sm font-bold text-muted-foreground">
                 {text.runsInBrowser}
               </span>
-            </div>
-            <div className="mt-4">
-              <AdSlot label="Page advertisement" compact />
             </div>
           </section>
 
@@ -1824,6 +1781,25 @@ function SeoLandingPage() {
             </ol>
           </section>
 
+          <section className="grid gap-4 md:grid-cols-2">
+            <article className="glass-panel rounded-[2rem] border hairline p-5 sm:p-6">
+              <h2 className="text-lg font-black tracking-[-0.03em]">{language === "es" ? "Ejemplo" : "Example"}</h2>
+              <p className="mt-4 text-sm leading-7 text-muted-foreground">{landingCopy.example || toolCopy.example}</p>
+            </article>
+            <article className="glass-panel rounded-[2rem] border hairline p-5 sm:p-6">
+              <h2 className="text-lg font-black tracking-[-0.03em]">{language === "es" ? "Cómo funciona" : "How this tool works"}</h2>
+              <p className="mt-4 text-sm leading-7 text-muted-foreground">{landingCopy.howWorks || landingCopy.useCase}</p>
+              {landingCopy.equation ? (
+                <div className="mt-4 rounded-2xl border border-border/70 bg-secondary p-4">
+                  <p className="text-xs font-black uppercase tracking-[0.2em] text-muted-foreground">
+                    {language === "es" ? "Ecuación" : "Equation"}
+                  </p>
+                  <p className="num mt-2 text-sm font-black leading-6">{landingCopy.equation}</p>
+                </div>
+              ) : null}
+            </article>
+          </section>
+
           <section className="glass-panel rounded-[2rem] border hairline p-5 sm:p-6">
             <h2 className="text-lg font-black tracking-[-0.03em]">{language === "es" ? "Recordatorio útil" : "Helpful reminder"}</h2>
             <p className="mt-3 text-sm leading-6 text-muted-foreground">
@@ -1835,7 +1811,6 @@ function SeoLandingPage() {
         </section>
 
         <aside className="grid content-start gap-4">
-          <AdSlot label="Guide advertisement" />
           <section className="glass-panel rounded-[2rem] border hairline p-5">
             <h2 className="text-lg font-black tracking-[-0.03em]">{language === "es" ? "Páginas relacionadas" : "Related pages"}</h2>
             <div className="mt-4 grid gap-2">
@@ -1926,7 +1901,6 @@ function BlogPostPage() {
           </div>
         </article>
         <aside className="grid content-start gap-4">
-          <AdSlot label="Article advertisement" />
           <section className="glass-panel rounded-[2rem] border hairline p-5">
             <h2 className="text-lg font-black tracking-[-0.03em]">{language === "es" ? "Herramientas útiles" : "Useful tools"}</h2>
             <div className="mt-4 grid gap-2">
@@ -2035,10 +2009,6 @@ function Home() {
             />
           </label>
 
-          <div className="mt-4">
-            <AdSlot label="Advertisement" compact />
-          </div>
-
           <div className="mt-4 grid max-h-56 gap-2 overflow-auto pr-1 lg:mt-5 lg:max-h-none lg:overflow-visible lg:pr-0">
             {filtered.map((tool) => {
               const Icon = tool.icon;
@@ -2126,8 +2096,8 @@ function Home() {
 
 function SlugPage() {
   const params = useParams<{ slug: string }>();
-  if (tools.some((tool) => tool.slug === params.slug)) return <ToolPage />;
   if (seoLandings.some((landing) => landing.slug === params.slug)) return <SeoLandingPage />;
+  if (tools.some((tool) => tool.slug === params.slug)) return <ToolPage />;
   return <NotFound />;
 }
 
