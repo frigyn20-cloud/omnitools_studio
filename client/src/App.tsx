@@ -601,20 +601,41 @@ function SiteFooter() {
   );
 }
 
+const ADSENSE_CLIENT = "ca-pub-8213468056702327";
+const ADSENSE_SLOT = "3030166240";
+
 function AdSlot({ label = "Advertisement", compact = false }: { label?: string; compact?: boolean }) {
   const { language } = useLanguage();
-  const text = uiText[language];
   const labelText = getAdLabel(label, language);
+
+  useEffect(() => {
+    try {
+      const adWindow = window as typeof window & { adsbygoogle?: Array<Record<string, unknown>> };
+      adWindow.adsbygoogle = adWindow.adsbygoogle || [];
+      adWindow.adsbygoogle.push({});
+    } catch (error) {
+      console.warn("AdSense could not render this slot yet.", error);
+    }
+  }, []);
+
   return (
     <aside
       data-testid={`ad-slot-${label.toLowerCase().replace(/\s+/g, "-")}`}
-      className={`${compact ? "rounded-2xl p-3" : "rounded-3xl p-4"} border border-dashed border-primary/35 bg-accent/35 text-center`}
-      aria-label={`${label} placement reserved for AdSense`}
+      className={`${compact ? "rounded-2xl p-3" : "rounded-3xl p-4"} border border-dashed border-primary/35 bg-accent/20 text-center`}
+      aria-label={`${label} AdSense placement`}
     >
       <p className="text-xs font-black uppercase tracking-[0.2em] text-primary">{labelText}</p>
-      <p className={`${compact ? "mt-1 text-xs" : "mt-2 text-sm"} text-muted-foreground`}>{text.adReserved}</p>
+      <ins
+        className="adsbygoogle"
+        style={{ display: "block" }}
+        data-ad-client={ADSENSE_CLIENT}
+        data-ad-slot={ADSENSE_SLOT}
+        data-ad-format="auto"
+        data-full-width-responsive="true"
+      />
     </aside>
   );
+}
 
 const fallbackRates: Record<string, number> = {
   USD: 1,
@@ -1512,7 +1533,7 @@ function ContactPage() {
       <section>
         <h2 className="text-lg font-black tracking-[-0.02em]">Public contact email</h2>
         <p className="mt-3 text-muted-foreground">
-          Gmail: kirill.moiseev.prof@gmail.com
+          Before launching on your own domain, replace this section with the public email address you want listed for the project, such as support@yourdomain.com. I did not publish your personal Gmail here because public contact details should be intentional.
         </p>
       </section>
       <section className="rounded-3xl bg-secondary p-5">
