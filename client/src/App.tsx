@@ -601,6 +601,20 @@ function SiteFooter() {
   );
 }
 
+function AdSlot({ label = "Advertisement", compact = false }: { label?: string; compact?: boolean }) {
+  const { language } = useLanguage();
+  const text = uiText[language];
+  const labelText = getAdLabel(label, language);
+  return (
+    <aside
+      data-testid={`ad-slot-${label.toLowerCase().replace(/\s+/g, "-")}`}
+      className={`${compact ? "rounded-2xl p-3" : "rounded-3xl p-4"} border border-dashed border-primary/35 bg-accent/35 text-center`}
+      aria-label={`${label} placement reserved for AdSense`}
+    >
+      <p className="text-xs font-black uppercase tracking-[0.2em] text-primary">{labelText}</p>
+      <p className={`${compact ? "mt-1 text-xs" : "mt-2 text-sm"} text-muted-foreground`}>{text.adReserved}</p>
+    </aside>
+  );
 }
 
 const fallbackRates: Record<string, number> = {
@@ -1453,6 +1467,9 @@ function StaticPageLayout({
           <p className="mt-3 text-sm leading-6 text-muted-foreground">{description}</p>
           <div className="mt-7 space-y-7 text-sm leading-7 text-foreground">{children}</div>
         </article>
+        <div className="mt-5">
+          <AdSlot label="Bottom page advertisement" />
+        </div>
       </main>
       <SiteFooter />
     </div>
@@ -1496,7 +1513,7 @@ function ContactPage() {
       <section>
         <h2 className="text-lg font-black tracking-[-0.02em]">Public contact email</h2>
         <p className="mt-3 text-muted-foreground">
-          Gmail: kirill.moiseev.prof@gmail.com
+          Before launching on your own domain, replace this section with the public email address you want listed for the project, such as support@yourdomain.com. I did not publish your personal Gmail here because public contact details should be intentional.
         </p>
       </section>
       <section className="rounded-3xl bg-secondary p-5">
@@ -1613,6 +1630,9 @@ function ToolPage() {
               <span className="rounded-xl border border-border/70 bg-card px-4 py-2 text-sm font-bold text-muted-foreground">
                 {text.runsInBrowser}
               </span>
+            </div>
+            <div className="mt-4">
+              <AdSlot label="Page advertisement" compact />
             </div>
           </section>
 
@@ -1815,6 +1835,7 @@ function SeoLandingPage() {
         </section>
 
         <aside className="grid content-start gap-4">
+          <AdSlot label="Guide advertisement" />
           <section className="glass-panel rounded-[2rem] border hairline p-5">
             <h2 className="text-lg font-black tracking-[-0.03em]">{language === "es" ? "Páginas relacionadas" : "Related pages"}</h2>
             <div className="mt-4 grid gap-2">
@@ -1905,6 +1926,7 @@ function BlogPostPage() {
           </div>
         </article>
         <aside className="grid content-start gap-4">
+          <AdSlot label="Article advertisement" />
           <section className="glass-panel rounded-[2rem] border hairline p-5">
             <h2 className="text-lg font-black tracking-[-0.03em]">{language === "es" ? "Herramientas útiles" : "Useful tools"}</h2>
             <div className="mt-4 grid gap-2">
@@ -2013,6 +2035,9 @@ function Home() {
             />
           </label>
 
+          <div className="mt-4">
+            <AdSlot label="Advertisement" compact />
+          </div>
 
           <div className="mt-4 grid max-h-56 gap-2 overflow-auto pr-1 lg:mt-5 lg:max-h-none lg:overflow-visible lg:pr-0">
             {filtered.map((tool) => {
@@ -2035,9 +2060,6 @@ function Home() {
                       <span className="block text-sm font-black">{toolCopy.name}</span>
                       <span className="hidden text-xs leading-5 text-muted-foreground sm:block">{toolCopy.description}</span>
                     </span>
-                    <div className="mt-4">
-                      <AdSlot label="Advertisement" compact />
-                     </div>
                   </button>
                   <Link
                     href={`/${tool.slug}`}
