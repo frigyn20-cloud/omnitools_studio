@@ -1,6 +1,6 @@
 # OmniTool Studio
 
-OmniTool Studio is a public utility website with calculators, converters, quick tools, SEO guide pages, blog articles, English/Spanish language support, light/dark mode, and installed Google AdSense display ad units.
+OmniTool Studio is a public utility website with calculators, converters, quick tools, SEO guide pages, blog articles, English/Spanish language support, light/dark mode, and AdSense-ready placeholder sections.
 
 ## Deploy on Vercel
 
@@ -22,7 +22,7 @@ Open `DEPLOYMENT.md` and follow the full launch checklist. The most important st
 4. Connect your custom domain.
 5. Submit the sitemap to Google Search Console.
 6. Apply to Google AdSense.
-7. Confirm `ads.txt` is visible at `/ads.txt` and shows `pub-8213468056702327`.
+7. Update `client/public/ads.txt` after AdSense gives you a publisher ID.
 
 ## Local test
 
@@ -31,3 +31,4 @@ npm install
 npm run build
 npm start
 ```
+

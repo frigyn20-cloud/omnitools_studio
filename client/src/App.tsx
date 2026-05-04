@@ -601,38 +601,18 @@ function SiteFooter() {
   );
 }
 
-const ADSENSE_CLIENT = "ca-pub-8213468056702327";
-const ADSENSE_SLOT = "3030166240";
-
 function AdSlot({ label = "Advertisement", compact = false }: { label?: string; compact?: boolean }) {
   const { language } = useLanguage();
+  const text = uiText[language];
   const labelText = getAdLabel(label, language);
-
-  useEffect(() => {
-    try {
-      const adWindow = window as typeof window & { adsbygoogle?: Array<Record<string, unknown>> };
-      adWindow.adsbygoogle = adWindow.adsbygoogle || [];
-      adWindow.adsbygoogle.push({});
-    } catch (error) {
-      console.warn("AdSense could not render this slot yet.", error);
-    }
-  }, []);
-
   return (
     <aside
       data-testid={`ad-slot-${label.toLowerCase().replace(/\s+/g, "-")}`}
-      className={`${compact ? "rounded-2xl p-3" : "rounded-3xl p-4"} border border-dashed border-primary/35 bg-accent/20 text-center`}
-      aria-label={`${label} AdSense placement`}
+      className={`${compact ? "rounded-2xl p-3" : "rounded-3xl p-4"} border border-dashed border-primary/35 bg-accent/35 text-center`}
+      aria-label={`${label} placement reserved for AdSense`}
     >
       <p className="text-xs font-black uppercase tracking-[0.2em] text-primary">{labelText}</p>
-      <ins
-        className="adsbygoogle"
-        style={{ display: "block" }}
-        data-ad-client={ADSENSE_CLIENT}
-        data-ad-slot={ADSENSE_SLOT}
-        data-ad-format="auto"
-        data-full-width-responsive="true"
-      />
+      <p className={`${compact ? "mt-1 text-xs" : "mt-2 text-sm"} text-muted-foreground`}>{text.adReserved}</p>
     </aside>
   );
 }

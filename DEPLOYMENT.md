@@ -8,7 +8,7 @@ This project is ready to upload to GitHub and deploy on Vercel as a static React
 - Separate public pages for tools, SEO guide pages, blog articles, About, Contact, Privacy, and Terms.
 - English and Spanish interface/content switcher.
 - Light mode by default, with optional dark mode.
-- Google AdSense display ad units using publisher ID `ca-pub-8213468056702327`.
+- AdSense placeholder boxes.
 - `ads.txt`, `robots.txt`, `sitemap.xml`, and Vercel rewrite settings.
 
 ## Files you should edit before launch
@@ -48,13 +48,21 @@ Replace that Contact page paragraph with your public support email. Use an email
 For questions, feedback, or business inquiries, contact: hello@your-domain.com
 ```
 
-### AdSense code is already installed
+### Keep `ads.txt` as-is until AdSense gives you a publisher ID
 
-The AdSense loader script is already in `client/index.html`, the display ad units are already in the shared `AdSlot` component in `client/src/App.tsx`, and `client/public/ads.txt` already contains:
+Google AdSense gives you a publisher ID that looks like:
 
 ```txt
-google.com, pub-8213468056702327, DIRECT, f08c47fec0942fa0
+pub-0000000000000000
 ```
+
+After you have that ID, replace `client/public/ads.txt` with:
+
+```txt
+google.com, pub-0000000000000000, DIRECT, f08c47fec0942fa0
+```
+
+Use your real publisher ID, not the example number.
 
 ## GitHub upload steps
 
@@ -127,11 +135,24 @@ https://your-real-domain.com/sitemap.xml
 3. Make sure the Contact page has a real public email.
 4. Go to Google AdSense.
 5. Add your website domain.
-6. Confirm that AdSense detects the script already installed in `client/index.html`.
-7. Confirm that `https://your-real-domain.com/ads.txt` opens and shows your `pub-8213468056702327` line.
-8. Submit the site for review.
+6. Copy the AdSense verification script.
+7. Paste the script into `client/index.html` before `</head>`.
+8. Commit the change to GitHub.
+9. Wait for Vercel to redeploy.
+10. After AdSense gives you a publisher ID, update `client/public/ads.txt`.
+11. Submit the site for review.
 
 Do not expect ads to show immediately. Google must review and approve the website first.
+
+## After AdSense approval
+
+The current site has ad placeholder boxes. After approval, replace those placeholders with real AdSense ad units. Search in `client/src/App.tsx` for:
+
+```txt
+function AdSlot
+```
+
+That is the component to update with Google’s ad code.
 
 ## Local test commands
 
@@ -158,6 +179,6 @@ dist/public
 - Privacy and Terms pages are accessible.
 - Google Search Console is connected.
 - Sitemap is submitted.
-- AdSense script is present in `client/index.html`.
-- `ads.txt` shows `pub-8213468056702327`.
+- AdSense verification script is added.
+- `ads.txt` is updated after you get your publisher ID.
 - Site pages load on mobile and desktop.
