@@ -2035,6 +2035,9 @@ function Home() {
                       <span className="block text-sm font-black">{toolCopy.name}</span>
                       <span className="hidden text-xs leading-5 text-muted-foreground sm:block">{toolCopy.description}</span>
                     </span>
+                    <div className="mt-4">
+                      <AdSlot label="Advertisement" compact />
+                     </div>
                   </button>
                   <Link
                     href={`/${tool.slug}`}
