@@ -1513,7 +1513,7 @@ function ContactPage() {
       <section>
         <h2 className="text-lg font-black tracking-[-0.02em]">Public contact email</h2>
         <p className="mt-3 text-muted-foreground">
-          Before launching on your own domain, replace this section with the public email address you want listed for the project, such as support@yourdomain.com. I did not publish your personal Gmail here because public contact details should be intentional.
+          Gmail: kirill.moiseev.prof@gmail.com
         </p>
       </section>
       <section className="rounded-3xl bg-secondary p-5">
