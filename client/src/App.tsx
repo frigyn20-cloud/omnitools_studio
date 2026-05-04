@@ -601,6 +601,21 @@ function SiteFooter() {
   );
 }
 
+function AdSlot({ label = "Advertisement", compact = false }: { label?: string; compact?: boolean }) {
+  const { language } = useLanguage();
+  const text = uiText[language];
+  const labelText = getAdLabel(label, language);
+  return (
+    <aside
+      data-testid={`ad-slot-${label.toLowerCase().replace(/\s+/g, "-")}`}
+      className={`${compact ? "rounded-2xl p-3" : "rounded-3xl p-4"} border border-dashed border-primary/35 bg-accent/35 text-center`}
+      aria-label={`${label} placement reserved for AdSense`}
+    >
+      <p className="text-xs font-black uppercase tracking-[0.2em] text-primary">{labelText}</p>
+      <p className={`${compact ? "mt-1 text-xs" : "mt-2 text-sm"} text-muted-foreground`}>{text.adReserved}</p>
+    </aside>
+  );
+}
 
 const fallbackRates: Record<string, number> = {
   USD: 1,
