@@ -92,6 +92,7 @@ function useTheme() {
 }
 
 const tools: Tool[] = [
+  { id: "after-tax-salary", slug: "after-tax-salary-calculator", category: "calculators", name: "After Tax Salary", description: "Estimate take-home pay after taxes and deductions.", icon: WalletCards, keyword: "after tax salary calculator", example: "Use it to estimate take-home pay from salary after federal, state, FICA, and other deductions.", },
   { id: "discount", slug: "discount-calculator", category: "calculators", name: "Discount", description: "Sale price, tax, and saved amount.", icon: BadgeDollarSign, keyword: "discount calculator with tax", example: "Use it to check a $120 item with a 25% discount and 9.5% tax before you buy." },
   { id: "tip", slug: "tip-calculator", category: "calculators", name: "Tip", description: "Split a bill with tip.", icon: WalletCards, keyword: "tip calculator split bill", example: "Use it to split an $86 dinner bill between three people with a 20% tip." },
   { id: "budget", slug: "budget-calculator", category: "calculators", name: "Budget", description: "Income, expenses, savings rate.", icon: Gauge, keyword: "monthly budget calculator", example: "Use it to compare income, fixed costs, variable costs, and a monthly savings goal." },
@@ -138,6 +139,7 @@ const toolTranslations: Record<string, { name: string; description: string; keyw
 };
 
 const seoLandings: SeoLanding[] = [
+  { slug: "after-tax-salary-calculator", title: "After Tax Salary Calculator", description: "Estimate take-home pay after federal tax, state tax, FICA, and other yearly deductions.", toolSlug: "after-tax-salary-calculator", useCase: "Use this to estimate how much salary you actually keep after taxes and deductions.", steps: [ "Enter gross annual salary.", "Enter estimated federal, state, and FICA tax rates.", "Add any extra yearly deductions.", "Review your estimated net yearly, monthly, biweekly, or weekly pay." ], example: "A $60,000 salary with 12% federal tax, 5% state tax, 7.65% FICA, and $1,200 other deductions gives an estimated take-home pay of about $42,210 per year.", howWorks: "The calculator subtracts estimated taxes and deductions from gross salary, then converts the result into yearly, monthly, biweekly, and weekly take-home pay.", equation: "Net income = Gross salary − Federal tax − State tax − FICA − Other deductions." },
   { slug: "percent-off-calculator", title: "Percent Off Calculator", description: "Calculate any percent-off discount, the amount saved, the sale price before tax, and the final total after tax.", toolSlug: "discount-calculator", useCase: "Use this page when a sale tag says 10%, 15%, 30%, or any other percent off and you want the real checkout estimate.", steps: ["Enter the original price.", "Enter the percent-off discount.", "Add sales tax if you want the final checkout estimate.", "Review the amount saved, sale price, and total."], example: "A $120 item with 25% off saves $30. The sale price before tax is $90, and with 9.5% tax the estimated total is $98.55.", howWorks: "The calculator converts the discount percentage into a decimal, multiplies it by the original price to find savings, subtracts the savings from the original price, then optionally adds sales tax.", equation: "Savings = Price × Discount %. Sale price = Price - Savings. Final total = Sale price × (1 + Tax %)." },
   { slug: "25-percent-off-calculator", title: "25 Percent Off Calculator", description: "Find the sale price, savings, and estimated after-tax total for a 25% discount.", toolSlug: "discount-calculator", useCase: "Use this page for common retail promotions where an item is marked 25% off.", steps: ["Enter the original price.", "Use 25 in the discount field.", "Enter tax if needed.", "Compare the final total with your budget."], example: "If the original price is $80, 25% off saves $20 and the sale price before tax is $60.", howWorks: "A 25% discount means you pay 75% of the original price before taxes or fees.", equation: "Sale price = Price × 0.75. Savings = Price × 0.25." },
   { slug: "50-percent-off-calculator", title: "50 Percent Off Calculator", description: "Calculate half-off sale prices, savings, and checkout totals with optional sales tax.", toolSlug: "discount-calculator", useCase: "Use this for clearance, Black Friday, seasonal sale, or buy-one-half-off price checks.", steps: ["Enter the original price.", "Set discount to 50.", "Add tax if you need checkout total.", "Review the half-price amount and savings."], example: "A $150 jacket at 50% off saves $75, leaving a $75 sale price before tax.", howWorks: "A 50% discount cuts the original price in half before any sales tax is applied.", equation: "Sale price = Price ÷ 2. Savings = Price ÷ 2." },
@@ -754,6 +756,7 @@ function CalculatorPanels({ activeId }: { activeId: string }) {
   if (activeId === "discount") return <DiscountTool />;
   if (activeId === "tip") return <TipTool />;
   if (activeId === "budget") return <BudgetTool />;
+  if (activeId === "after-tax-salary") return <AfterTaxSalaryTool />;
   if (activeId === "loan") return <LoanTool />;
   if (activeId === "savings") return <SavingsTool />;
   if (activeId === "calories") return <CaloriesTool />;
@@ -852,6 +855,51 @@ function BudgetTool() {
         <Result label="Left before goal" value={money(left)} tone="accent" />
         <Result label="After goal" value={money(afterGoal)} tone={afterGoal < 0 ? "warn" : "default"} />
         <Result label="Savings rate" value={`${number(rate, 1)}%`} />
+      </div>
+    </div>
+  );
+}
+
+function AfterTaxSalaryTool() {
+  const [salary, setSalary] = useState(60000);
+  const [federalTax, setFederalTax] = useState(12);
+  const [stateTax, setStateTax] = useState(5);
+  const [ficaTax, setFicaTax] = useState(7.65);
+  const [otherDeductions, setOtherDeductions] = useState(1200);
+
+  const gross = Number(salary) || 0;
+  const federalAmount = gross * ((Number(federalTax) || 0) / 100);
+  const stateAmount = gross * ((Number(stateTax) || 0) / 100);
+  const ficaAmount = gross * ((Number(ficaTax) || 0) / 100);
+  const otherAmount = Number(otherDeductions) || 0;
+
+  const totalDeductions = federalAmount + stateAmount + ficaAmount + otherAmount;
+  const netAnnual = gross - totalDeductions;
+  const netMonthly = netAnnual / 12;
+  const netBiweekly = netAnnual / 26;
+  const netWeekly = netAnnual / 52;
+
+  return (
+    <div className="grid gap-4 lg:grid-cols-[1fr_1fr]">
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Field label="Annual salary" value={salary} onChange={setSalary} />
+        <Field label="Federal tax %" value={federalTax} onChange={setFederalTax} step="0.01" />
+        <Field label="State tax %" value={stateTax} onChange={setStateTax} step="0.01" />
+        <Field label="FICA tax %" value={ficaTax} onChange={setFicaTax} step="0.01" />
+        <Field
+          label="Other yearly deductions"
+          value={otherDeductions}
+          onChange={setOtherDeductions}
+          step="0.01"
+        />
+      </div>
+
+      <div className="grid gap-3 sm:grid-cols-2">
+        <Result label="Net annual pay" value={money(netAnnual)} tone="accent" />
+        <Result label="Net monthly pay" value={money(netMonthly)} />
+        <Result label="Net biweekly pay" value={money(netBiweekly)} />
+        <Result label="Net weekly pay" value={money(netWeekly)} />
+        <Result label="Total deductions" value={money(totalDeductions)} tone="warn" />
       </div>
     </div>
   );
