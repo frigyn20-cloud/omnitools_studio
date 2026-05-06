@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useMemo, useRef, useState } from "react";
+import { Analytics } from "@vercel/analytics/next";
 import { Link, Switch, Route, Router, useParams } from "wouter";
 import { useBrowserLocation } from "wouter/use-browser-location";
 import { useHashLocation } from "wouter/use-hash-location";
@@ -2189,6 +2190,7 @@ function App() {
             <Toaster />
             <Router hook={adaptiveLocationHook}>
               <AppRouter />
+              <Analytics />
             </Router>
           </TooltipProvider>
         </QueryClientProvider>
