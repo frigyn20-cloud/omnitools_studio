@@ -283,9 +283,9 @@ const uiText = {
     mobileBody: "Yes. The layout is built to work on phones, tablets, and desktop screens.",
     searchTools: "Search tools",
     openPage: "Open page",
-    homeKicker: "Calculator cockpit",
-    homeTitle: "One clean workspace for quick math, conversions, writing utilities, and focus tools.",
-    homeBody: "Switch tools on the left, enter values, and copy or download the output. Everything runs locally in the browser unless the currency tool can load live exchange rates.",
+    homeKicker: "Free online tools",
+    homeTitle: "OmniTool Studio: Free Calculators, Converters & Everyday Tools",
+    homeBody: "OmniTool Studio is a free collection of calculators, converters, and quick online tools for everyday tasks. Use OmniTool Studio for discounts, tips, budgets, loans, savings, dates, time zones, currency, timestamps, QR codes, text tools, and more.",
     toolGuide: "Tool guide",
     toolGuideTitle: "Useful calculators and converters without a cluttered tab stack.",
     toolGuideP1: "Use the finance tools for quick shopping, budgeting, loan, tip, and savings estimates. The date and time tools help with deadlines, timestamps, and timezone comparisons.",
@@ -328,9 +328,9 @@ const uiText = {
     mobileBody: "Sí. El diseño funciona en teléfonos, tablets y computadoras.",
     searchTools: "Buscar herramientas",
     openPage: "Abrir página",
-    homeKicker: "Panel de calculadoras",
-    homeTitle: "Un espacio limpio para cálculos rápidos, conversiones, escritura y herramientas de enfoque.",
-    homeBody: "Cambia herramientas a la izquierda, ingresa valores y copia o descarga el resultado. Todo funciona localmente en el navegador excepto cuando el convertidor de moneda carga tasas en vivo.",
+    homeKicker: "Herramientas gratis en línea",
+    homeTitle: "OmniTool Studio: Calculadoras, convertidores y herramientas útiles",
+    homeBody: "OmniTool Studio reúne calculadoras, convertidores y herramientas rápidas gratis para tareas diarias. Usa OmniTool Studio para descuentos, propinas, presupuestos, préstamos, ahorros, fechas, zonas horarias, moneda, QR, texto y más.",
     toolGuide: "Guía de herramientas",
     toolGuideTitle: "Calculadoras y convertidores útiles sin abrir demasiadas pestañas.",
     toolGuideP1: "Usa las herramientas financieras para compras, presupuestos, préstamos, propinas y estimaciones de ahorro. Las herramientas de fecha y hora ayudan con plazos, timestamps y zonas horarias.",
@@ -1977,9 +1977,24 @@ function Home() {
   const [activeCategory, setActiveCategory] = useState<ToolFilter>("all");
   const [activeTool, setActiveTool] = useState("discount");
   const [query, setQuery] = useState("");
-  useEffect(() => {
-    document.title = language === "es" ? "OmniTool Studio - Calculadoras, convertidores y utilidades rápidas" : "OmniTool Studio - Calculators, Converters, and Quick Utilities";
-  }, [language]);
+  
+useEffect(() => {
+  document.title =
+    language === "es"
+      ? "OmniTool Studio - Calculadoras, convertidores y herramientas gratis"
+      : "OmniTool Studio - Free Calculators, Converters & Everyday Tools";
+
+  const meta = document.querySelector('meta[name="description"]');
+  if (meta) {
+    meta.setAttribute(
+      "content",
+      language === "es"
+        ? "OmniTool Studio ofrece calculadoras, convertidores y herramientas rápidas gratis para presupuesto, descuentos, préstamos, ahorro, fechas, texto, QR y más."
+        : "OmniTool Studio offers free calculators, converters, and quick online tools for budgets, discounts, loans, savings, dates, text, QR codes, and more."
+    );
+  }
+}, [language]);
+  
   const filtered = tools.filter((tool) => {
     const categoryMatches = activeCategory === "all" || tool.category === activeCategory;
     const toolCopy = getToolCopy(tool, language);
@@ -2095,15 +2110,41 @@ function Home() {
 
         <section className="grid content-start gap-4">
           <div className="glass-panel order-2 overflow-hidden rounded-[2rem] border hairline lg:order-1">
-            <div className="grid gap-5 p-5 md:grid-cols-[1.3fr_0.7fr] md:p-7">
+           <div className="grid gap-5 p-5 md:grid-cols-[1.3fr_0.7fr] md:p-7">
               <div>
-                <p className="mb-3 text-xs font-black uppercase tracking-[0.2em] text-primary">{text.homeKicker}</p>
-                <h2 className="max-w-2xl text-xl font-black tracking-[-0.04em]">
+                <p className="mb-3 text-xs font-black uppercase tracking-[0.2em] text-primary">
+                  {text.homeKicker}
+                </p>
+            
+                <h1 className="max-w-3xl text-2xl font-black tracking-[-0.04em] sm:text-3xl">
                   {text.homeTitle}
-                </h2>
-                <p className="mt-3 max-w-2xl text-sm leading-6 text-muted-foreground">
+                </h1>
+            
+                <p className="mt-3 max-w-3xl text-sm leading-6 text-muted-foreground sm:text-base">
                   {text.homeBody}
                 </p>
+            
+                <p className="mt-3 max-w-3xl text-sm leading-6 text-muted-foreground sm:text-base">
+                  Explore finance calculators, unit converters, text tools, QR code generation,
+                  file tools, timers, password tools, and other fast utilities designed for
+                  school, work, shopping, planning, and everyday use.
+                </p>
+            
+                <div className="mt-5 flex flex-wrap gap-3">
+                  <Link
+                    href="/tools"
+                    className="rounded-xl bg-primary px-4 py-2.5 text-sm font-black text-primary-foreground shadow-sm transition hover:opacity-90"
+                  >
+                    Explore all tools
+                  </Link>
+            
+                  <Link
+                    href="/blog"
+                    className="rounded-xl border border-border70 bg-card px-4 py-2.5 text-sm font-black text-foreground transition hover:bg-secondary"
+                  >
+                    Read guides
+                  </Link>
+                </div>
               </div>
               <div className="grid grid-cols-3 gap-2">
                 {(["calculators", "converters", "utilities"] as Category[]).map((category) => (
