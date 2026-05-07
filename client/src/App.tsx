@@ -2147,10 +2147,20 @@ useEffect(() => {
                 </div>
               </div>
               <div className="grid grid-cols-3 gap-2">
-                {(["calculators", "converters", "utilities"] as Category[]).map((category) => (
-                  <div key={category} className="rounded-2xl bg-secondary p-3">
-                    <div className="num text-xl font-black">{tools.filter((tool) => tool.category === category).length}</div>
-                    <div className="text-xs font-bold text-muted-foreground">{getCategoryMeta(category, language).label}</div>
+                    {(["calculators", "converters", "utilities"] as Category[]).map((category) => (
+                      <div
+                        key={category}
+                        className="flex min-h-[84px] flex-col items-center justify-center rounded-2xl bg-secondary px-2 py-2 text-center"
+                      >
+                        <div className="num text-2xl font-black leading-none">
+                          {tools.filter((tool) => tool.category === category).length}
+                        </div>
+                  
+                        <div className="mt-2 text-xs font-bold leading-tight text-muted-foreground">
+                          {getCategoryMeta(category, language).label}
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 ))}
               </div>
