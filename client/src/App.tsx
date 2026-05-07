@@ -2147,6 +2147,22 @@ useEffect(() => {
                 </div>
               </div>
           
+              <div className="grid grid-cols-1 gap-2 sm:grid-cols-3">
+                {(["calculators", "converters", "utilities"] as Category[]).map((category) => (
+                  <div key={category} className="rounded-2xl bg-secondary p-3">
+                    <div className="num text-xl font-black">
+                      {tools.filter((tool) => tool.category === category).length}
+                    </div>
+          
+                    <div className="text-xs font-bold text-muted-foreground">
+                      {getCategoryMeta(category, language).label}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+          
               <div className="grid gap-5 p-5 md:grid-cols-[1.6fr_0.4fr] md:p-7">
                 {(["calculators", "converters", "utilities"] as Category[]).map((category) => (
                   <div
