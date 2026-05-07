@@ -2147,11 +2147,11 @@ useEffect(() => {
                 </div>
               </div>
           
-              <div className="grid h-fit grid-cols-3 gap-2 self-start">
+              <div className="grid grid-cols-3 gap-2">
                 {(["calculators", "converters", "utilities"] as Category[]).map((category) => (
                   <div
                     key={category}
-                    className="flex min-h-0 flex-col items-center justify-center rounded-2xl bg-secondary px-2 py-1.5 text-center"
+                    className="flex h-[72px] flex-col items-center justify-center rounded-2xl bg-secondary px-2 py-2 text-center"
                   >
                     <div className="num text-2xl font-black leading-none">
                       {tools.filter((tool) => tool.category === category).length}
