@@ -2147,7 +2147,7 @@ useEffect(() => {
                 </div>
               </div>
           
-              <div className="grid grid-cols-3 gap-2">
+              <div className="grid gap-5 p-5 md:grid-cols-[1.3fr_0.7fr] md:p-7">
                 {(["calculators", "converters", "utilities"] as Category[]).map((category) => (
                   <div
                     key={category}
