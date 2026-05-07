@@ -2110,26 +2110,26 @@ useEffect(() => {
 
         <section className="grid content-start gap-4">
           <div className="glass-panel order-2 overflow-hidden rounded-[2rem] border hairline lg:order-1">
-           <div className="grid gap-5 p-5 md:grid-cols-[1.3fr_0.7fr] md:p-7">
+            <div className="grid gap-5 p-5 md:grid-cols-[1.3fr_0.7fr] md:p-7">
               <div>
                 <p className="mb-3 text-xs font-black uppercase tracking-[0.2em] text-primary">
                   {text.homeKicker}
                 </p>
-            
+          
                 <h1 className="max-w-3xl text-2xl font-black tracking-[-0.04em] sm:text-3xl">
                   {text.homeTitle}
                 </h1>
-            
+          
                 <p className="mt-3 max-w-3xl text-sm leading-6 text-muted-foreground sm:text-base">
                   {text.homeBody}
                 </p>
-            
+          
                 <p className="mt-3 max-w-3xl text-sm leading-6 text-muted-foreground sm:text-base">
                   Explore finance calculators, unit converters, text tools, QR code generation,
                   file tools, timers, password tools, and other fast utilities designed for
                   school, work, shopping, planning, and everyday use.
                 </p>
-            
+          
                 <div className="mt-5 flex flex-wrap gap-3">
                   <Link
                     href="/tools"
@@ -2137,7 +2137,7 @@ useEffect(() => {
                   >
                     Explore all tools
                   </Link>
-            
+          
                   <Link
                     href="/blog"
                     className="rounded-xl border border-border70 bg-card px-4 py-2.5 text-sm font-black text-foreground transition hover:bg-secondary"
@@ -2146,23 +2146,22 @@ useEffect(() => {
                   </Link>
                 </div>
               </div>
+          
               <div className="grid grid-cols-3 gap-2">
-                        {(["calculators", "converters", "utilities"] as Category[]).map((category) => (
-                          <div
-                            key={category}
-                            className="flex min-h-[84px] flex-col items-center justify-center rounded-2xl bg-secondary px-2 py-2 text-center"
-                          >
-                            <div className="num text-2xl font-black leading-none">
-                              {tools.filter((tool) => tool.category === category).length}
-                            </div>
-                      
-                            <div className="mt-2 text-xs font-bold leading-tight text-muted-foreground">
-                              {getCategoryMeta(category, language).label}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
+                {(["calculators", "converters", "utilities"] as Category[]).map((category) => (
+                  <div
+                    key={category}
+                    className="flex min-h-[84px] flex-col items-center justify-center rounded-2xl bg-secondary px-2 py-2 text-center"
+                  >
+                    <div className="num text-2xl font-black leading-none">
+                      {tools.filter((tool) => tool.category === category).length}
+                    </div>
+          
+                    <div className="mt-2 text-xs font-bold leading-tight text-muted-foreground">
+                      {getCategoryMeta(category, language).label}
+                    </div>
                   </div>
+                ))}
               </div>
             </div>
           </div>
