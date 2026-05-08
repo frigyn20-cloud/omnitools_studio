@@ -93,7 +93,7 @@ function useTheme() {
 }
 
 const tools: Tool[] = [
-  { id: "after-tax-salary", slug: "after-tax-salary-calculator", category: "calculators", name: "After Tax Salary", description: "Estimate take-home pay after taxes and deductions.", icon: WalletCards, keyword: "after tax salary calculator", example: "Use it to estimate take-home pay from salary after federal, state, FICA, and other deductions.", },
+  { id: "after-tax-salary", slug: "after-tax-salary-calculator", category: "calculators", name: "After Tax Salary", description: "Estimate take-home pay from a 55k salary after taxes and other income levels.", icon: WalletCards, keyword: "55k salary after taxes", example: "Use it to estimate take-home pay from a 55k salary after taxes, including federal, state, FICA, and other deductions." },
   { id: "discount", slug: "discount-calculator", category: "calculators", name: "Discount", description: "Sale price, tax, and saved amount.", icon: BadgeDollarSign, keyword: "discount calculator with tax", example: "Use it to check a $120 item with a 25% discount and 9.5% tax before you buy." },
   { id: "tip", slug: "tip-calculator", category: "calculators", name: "Tip", description: "Split a bill with tip.", icon: WalletCards, keyword: "tip calculator split bill", example: "Use it to split an $86 dinner bill between three people with a 20% tip." },
   { id: "budget", slug: "budget-calculator", category: "calculators", name: "Budget", description: "Income, expenses, savings rate.", icon: Gauge, keyword: "monthly budget calculator", example: "Use it to compare income, fixed costs, variable costs, and a monthly savings goal." },
@@ -106,7 +106,7 @@ const tools: Tool[] = [
   { id: "timezones", slug: "time-zone-converter", category: "converters", name: "Time Zones", description: "Compare cities and convert times.", icon: Clock, keyword: "time zone converter", example: "Use it to compare Los Angeles, New York, London, Moscow, Dubai, and Tokyo." },
   { id: "timestamps", slug: "timestamp-converter", category: "converters", name: "Timestamps", description: "Unix, ISO, and local date strings.", icon: Timer, keyword: "unix timestamp converter", example: "Use it to turn Unix seconds into ISO and local time formats." },
   { id: "data", slug: "data-format-converter", category: "converters", name: "Data Formats", description: "JSON, Base64, and CSV tools.", icon: FileText, keyword: "JSON Base64 CSV converter", example: "Use it to format JSON, minify JSON, encode Base64, decode Base64, or convert CSV to JSON." },
-  { id: "pdf", slug: "file-to-pdf-converter", category: "converters", name: "File to PDF", description: "Turn text or images into PDFs.", icon: FileText, keyword: "file to PDF converter", example: "Use it to create a simple PDF from text, CSV, JSON, PNG, or JPG files." },
+  { id: "pdf", slug: "file-to-pdf-converter", category: "converters", name: "JSON & CSV to PDF", description: "Convert JSON, CSV, text, and images into PDFs.", icon: FileText, keyword: "json to pdf converter", example: "Use it to convert JSON to PDF, convert a CSV file to PDF, or create a simple PDF from text, PNG, or JPG files." },
   { id: "qr", slug: "qr-code-generator", category: "utilities", name: "QR Code", description: "Generate a downloadable QR code.", icon: QrCode, keyword: "free QR code generator", example: "Use it to create a QR code for a website, contact card, event note, or plain text." },
   { id: "words", slug: "word-counter", category: "utilities", name: "Word Counter", description: "Counts, density, reading time.", icon: Type, keyword: "word counter", example: "Use it to check word count, character count, sentence count, and reading time." },
   { id: "notes", slug: "online-notepad", category: "utilities", name: "Notes Pad", description: "Fast scratch notes for the session.", icon: NotebookPen, keyword: "online notepad", example: "Use it as a temporary scratch pad, then download your note as a text file." },
@@ -1628,6 +1628,16 @@ function ToolPage() {
             <p className="mb-3 text-xs font-black uppercase tracking-[0.2em] text-primary">{getCategoryMeta(tool.category, language).label}</p>
             <h1 className="max-w-3xl text-xl font-black tracking-[-0.04em]">{title}</h1>
             <p className="mt-3 max-w-3xl text-sm leading-6 text-muted-foreground">{description}</p>
+            {tool.slug === "file-to-pdf-converter" && (
+              <div className="mt-4 space-y-3 text-sm leading-6 text-muted-foreground">
+                <p>
+                  Need to know how to convert a CSV file to PDF? Upload your CSV and the tool will turn it into a simple PDF you can download and share.
+                </p>
+                <p>
+                  You can also use this page as a JSON to PDF converter for structured data files.
+                </p>
+              </div>
+            )}
             <div className="mt-5 flex flex-wrap gap-2">
               <Link
                 href="/"
