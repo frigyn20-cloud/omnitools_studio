@@ -2,6 +2,8 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 
 const HF_MODEL = "facebook/bart-large-cnn";
+// New Hugging Face router endpoint (api-inference.huggingface.co deprecated 2026)
+const HF_URL = `https://router.huggingface.co/hf-inference/models/${HF_MODEL}`;
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   res.setHeader("Access-Control-Allow-Origin", "https://omnitoolstudio.com");
@@ -24,7 +26,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const max_new_tokens = typeof maxTokens === "number" ? maxTokens : 160;
 
   try {
-    const hfRes = await fetch(`https://api-inference.huggingface.co/models/${HF_MODEL}`, {
+    const hfRes = await fetch(HF_URL, {
       method: "POST",
       headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
       body: JSON.stringify({
