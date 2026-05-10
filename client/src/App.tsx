@@ -1516,31 +1516,25 @@ function SummarizerTool() {
     setSummary("");
     const maxTokens = length === "short" ? 80 : length === "medium" ? 160 : 280;
     try {
-      const res = await fetch("https://api-inference.huggingface.co/models/facebook/bart-large-cnn", {
+      const res = await fetch("/api/summarize", {
         method: "POST",
         headers: {
-          "Authorization": "Bearer " + ["hf_suCKUcYmRhk", "AQoMhDvPQZwyznZeWUEQavU"].join(""),
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          inputs: trimmed.slice(0, 3000),
-          parameters: { max_new_tokens: maxTokens, min_length: Math.floor(maxTokens * 0.4), do_sample: false },
+          text: trimmed,
+          maxTokens,
         }),
       });
       if (!res.ok) {
         const errJson = await res.json().catch(() => ({}));
-        if (res.status === 503) {
-          setError("The AI model is loading (cold start). Wait 20 seconds and try again.");
-        } else {
-          setError(errJson?.error || "Summarization failed. Please try again.");
-        }
+        setError(errJson?.error || "Summarization failed. Please try again.");
         setLoading(false);
         return;
       }
-      const json = await res.json();
-      const result = Array.isArray(json) ? json[0]?.summary_text : json?.summary_text;
-      if (result) {
-        setSummary(result);
+      const data = await res.json();
+      if (data?.summary) {
+        setSummary(data.summary);
       } else {
         setError("No summary returned. Try a longer or different text.");
       }
