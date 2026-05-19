@@ -1,0 +1,32 @@
+--- App.tsx wiring instructions (apply manually or via patch) ---
+
+## 1. Add import at the top of App.tsx (after existing imports)
+
+import { PdfAnnotateTool } from "./PdfAnnotateTool";
+
+
+## 2. Add tool entry inside the `tools` array (after the `pdf` entry, around line 142)
+
+Replace:
+  { id: "qr", slug: "qr-code-generator", ...
+
+With (insert BEFORE the qr entry):
+  { id: "pdf-annotate", slug: "pdf-signature-text-tool", category: "utilities", name: "PDF Sign & Text", description: "Add text and signatures to any PDF in your browser.", icon: FileText, keyword: "pdf signature tool online free", example: "Use it to add your signature and custom text to any PDF file without uploading it to a server." },
+  { id: "qr", slug: "qr-code-generator", ...
+
+
+## 3. Add render case in UtilityPanels (around line ~1985)
+
+Replace:
+  function UtilityPanels({ activeId }: { activeId: string }) {
+    if (activeId === "qr") return <QrTool />;
+
+With:
+  function UtilityPanels({ activeId }: { activeId: string }) {
+    if (activeId === "pdf-annotate") return <PdfAnnotateTool />;
+    if (activeId === "qr") return <QrTool />;
+
+
+## 4. Add Spanish translation entry (optional, inside toolTranslationsEs)
+
+  "pdf-annotate": { name: "PDF Firma y Texto", description: "Añade texto y firmas a cualquier PDF en tu navegador.", keyword: "herramienta de firma PDF gratis", example: "Úsala para agregar tu firma y texto a cualquier archivo PDF sin subirlo a un servidor." },

@@ -1,404 +1,389 @@
-import { useRef, useState } from "react";
+import { useState, useRef } from "react";
 import { PDFDocument, rgb, StandardFonts } from "pdf-lib";
-import { Download, FileUp, Pen, Type, Trash2, Plus } from "lucide-react";
 
-type Annotation =
-  | { kind: "text"; page: number; x: number; y: number; text: string; size: number; r: number; g: number; b: number }
-  | { kind: "sig"; page: number; x: number; y: number; w: number; h: number; dataUrl: string };
+// ─── Types ────────────────────────────────────────────────────────────────────
+
+type SignatureMode = "draw" | "type" | "upload";
+
+interface TextEntry {
+  id: string;
+  page: number;
+  text: string;
+  x: number;
+  y: number;
+  size: number;
+  colorHex: string;
+}
+
+// ─── Helpers ──────────────────────────────────────────────────────────────────
+
+function hexToRgb(hex: string) {
+  const r = parseInt(hex.slice(1, 3), 16) / 255;
+  const g = parseInt(hex.slice(3, 5), 16) / 255;
+  const b = parseInt(hex.slice(5, 7), 16) / 255;
+  return rgb(r, g, b);
+}
+
+function uid() {
+  return Math.random().toString(36).slice(2, 9);
+}
+
+// ─── Main Component ──────────────────────────────────────────────────────────
 
 export default function PdfSignatureTextTool() {
+  // File state
   const [pdfBytes, setPdfBytes] = useState<Uint8Array | null>(null);
   const [fileName, setFileName] = useState("");
   const [pageCount, setPageCount] = useState(0);
-  const [selectedPage, setSelectedPage] = useState(1);
-  const [annotations, setAnnotations] = useState<Annotation[]>([]);
-  const [mode, setMode] = useState<"text" | "sig">("text");
-  const [downloading, setDownloading] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [status, setStatus] = useState("");
 
-  const [textInput, setTextInput] = useState("Your text here");
-  const [fontSize, setFontSize] = useState(14);
-  const [textColor, setTextColor] = useState("#000000");
-  const [posX, setPosX] = useState(72);
-  const [posY, setPosY] = useState(700);
+  // Text entries
+  const [texts, setTexts] = useState<TextEntry[]>([]);
+  const [newText, setNewText] = useState("Your text here");
+  const [newPage, setNewPage] = useState(1);
+  const [newX, setNewX] = useState(72);
+  const [newY, setNewY] = useState(700);
+  const [newSize, setNewSize] = useState(14);
+  const [newColor, setNewColor] = useState("#000000");
 
-  const sigCanvasRef = useRef<HTMLCanvasElement>(null);
-  const [isDrawing, setIsDrawing] = useState(false);
-  const [hasSig, setHasSig] = useState(false);
+  // Signature state
+  const [sigMode, setSigMode] = useState<SignatureMode>("draw");
+  const [sigText, setSigText] = useState("");
+  const [sigPage, setSigPage] = useState(1);
   const [sigX, setSigX] = useState(72);
-  const [sigY, setSigY] = useState(600);
-  const [sigW, setSigW] = useState(200);
-  const [sigH, setSigH] = useState(60);
-  const lastPt = useRef<{ x: number; y: number } | null>(null);
+  const [sigY, setSigY] = useState(100);
+  const [sigSize, setSigSize] = useState(28);
+  const [sigImageBytes, setSigImageBytes] = useState<Uint8Array | null>(null);
+  const [sigImageName, setSigImageName] = useState("");
+  const [sigImgWidth, setSigImgWidth] = useState(200);
+  const [sigImgHeight, setSigImgHeight] = useState(60);
 
-  function hexToRgb(hex: string) {
-    const r = parseInt(hex.slice(1, 3), 16) / 255;
-    const g = parseInt(hex.slice(3, 5), 16) / 255;
-    const b = parseInt(hex.slice(5, 7), 16) / 255;
-    return { r, g, b };
-  }
+  // Canvas drawing
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [drawing, setDrawing] = useState(false);
+  const [hasDrawing, setHasDrawing] = useState(false);
 
-  async function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
+  // ── PDF upload ──────────────────────────────────────────────────────────────
+  const handlePdfUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    setFileName(file.name);
-    const ab = await file.arrayBuffer();
-    const bytes = new Uint8Array(ab);
+    const bytes = new Uint8Array(await file.arrayBuffer());
     const doc = await PDFDocument.load(bytes);
-    setPageCount(doc.getPageCount());
     setPdfBytes(bytes);
-    setAnnotations([]);
-  }
+    setFileName(file.name);
+    setPageCount(doc.getPageCount());
+    setTexts([]);
+    setHasDrawing(false);
+    setSigImageBytes(null);
+    setSigImageName("");
+    setStatus(`Loaded "${file.name}" — ${doc.getPageCount()} page(s)`);
+  };
 
-  function addTextAnnotation() {
-    if (!textInput.trim()) return;
-    const { r, g, b } = hexToRgb(textColor);
-    setAnnotations((prev) => [
-      ...prev,
-      { kind: "text", page: selectedPage, x: posX, y: posY, text: textInput, size: fontSize, r, g, b },
-    ]);
-  }
-
-  function addSignatureAnnotation() {
-    const canvas = sigCanvasRef.current;
-    if (!canvas || !hasSig) return;
-    const dataUrl = canvas.toDataURL("image/png");
-    setAnnotations((prev) => [
-      ...prev,
-      { kind: "sig", page: selectedPage, x: sigX, y: sigY, w: sigW, h: sigH, dataUrl },
-    ]);
-  }
-
-  function clearSigCanvas() {
-    const canvas = sigCanvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    ctx?.clearRect(0, 0, canvas.width, canvas.height);
-    setHasSig(false);
-  }
-
-  function getSigPoint(e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) {
-    const canvas = sigCanvasRef.current!;
+  // ── Canvas drawing ──────────────────────────────────────────────────────────
+  const getPos = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
+    const canvas = canvasRef.current!;
     const rect = canvas.getBoundingClientRect();
-    const scaleX = canvas.width / rect.width;
-    const scaleY = canvas.height / rect.height;
     if ("touches" in e) {
-      return {
-        x: (e.touches[0].clientX - rect.left) * scaleX,
-        y: (e.touches[0].clientY - rect.top) * scaleY,
-      };
+      return { x: e.touches[0].clientX - rect.left, y: e.touches[0].clientY - rect.top };
     }
-    return {
-      x: (e.clientX - rect.left) * scaleX,
-      y: (e.clientY - rect.top) * scaleY,
-    };
-  }
+    return { x: (e as React.MouseEvent).clientX - rect.left, y: (e as React.MouseEvent).clientY - rect.top };
+  };
 
-  function startDraw(e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) {
+  const startDraw = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
     e.preventDefault();
-    setIsDrawing(true);
-    lastPt.current = getSigPoint(e);
-  }
+    const ctx = canvasRef.current?.getContext("2d");
+    if (!ctx) return;
+    const { x, y } = getPos(e);
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    setDrawing(true);
+  };
 
-  function draw(e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) {
-    if (!isDrawing) return;
+  const draw = (e: React.MouseEvent<HTMLCanvasElement> | React.TouchEvent<HTMLCanvasElement>) => {
     e.preventDefault();
-    const canvas = sigCanvasRef.current!;
-    const ctx = canvas.getContext("2d")!;
-    const pt = getSigPoint(e);
-    if (lastPt.current) {
-      ctx.beginPath();
-      ctx.moveTo(lastPt.current.x, lastPt.current.y);
-      ctx.lineTo(pt.x, pt.y);
-      ctx.strokeStyle = "#1a1a2e";
-      ctx.lineWidth = 2.5;
-      ctx.lineCap = "round";
-      ctx.stroke();
-      setHasSig(true);
-    }
-    lastPt.current = pt;
-  }
+    if (!drawing) return;
+    const ctx = canvasRef.current?.getContext("2d");
+    if (!ctx) return;
+    const { x, y } = getPos(e);
+    ctx.lineWidth = 2;
+    ctx.strokeStyle = "#1a1a1a";
+    ctx.lineCap = "round";
+    ctx.lineTo(x, y);
+    ctx.stroke();
+    setHasDrawing(true);
+  };
 
-  function endDraw() {
-    setIsDrawing(false);
-    lastPt.current = null;
-  }
+  const endDraw = () => setDrawing(false);
 
-  async function handleDownload() {
-    if (!pdfBytes || annotations.length === 0) return;
-    setDownloading(true);
+  const clearCanvas = () => {
+    const ctx = canvasRef.current?.getContext("2d");
+    if (!ctx) return;
+    ctx.clearRect(0, 0, canvasRef.current!.width, canvasRef.current!.height);
+    setHasDrawing(false);
+  };
+
+  // ── Signature image upload ──────────────────────────────────────────────────
+  const handleSigImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const bytes = new Uint8Array(await file.arrayBuffer());
+    setSigImageBytes(bytes);
+    setSigImageName(file.name);
+  };
+
+  // ── Add text entry ──────────────────────────────────────────────────────────
+  const addText = () => {
+    if (!newText.trim()) return;
+    setTexts(prev => [...prev, { id: uid(), page: newPage, text: newText, x: newX, y: newY, size: newSize, colorHex: newColor }]);
+    setStatus("Text entry added. Add more or click Generate.");
+  };
+
+  const removeText = (id: string) => setTexts(prev => prev.filter(t => t.id !== id));
+
+  // ── Generate PDF ────────────────────────────────────────────────────────────
+  const generate = async () => {
+    if (!pdfBytes) { setStatus("Please upload a PDF first."); return; }
+    setLoading(true);
+    setStatus("Processing…");
+
     try {
       const doc = await PDFDocument.load(pdfBytes);
+      const pages = doc.getPages();
       const font = await doc.embedFont(StandardFonts.Helvetica);
-      for (const ann of annotations) {
-        const page = doc.getPage(ann.page - 1);
-        if (ann.kind === "text") {
-          page.drawText(ann.text, {
-            x: ann.x,
-            y: ann.y,
-            size: ann.size,
-            font,
-            color: rgb(ann.r, ann.g, ann.b),
-          });
-        } else if (ann.kind === "sig") {
-          const base64 = ann.dataUrl.replace(/^data:image\/png;base64,/, "");
-          const pngBytes = Uint8Array.from(atob(base64), (c) => c.charCodeAt(0));
-          const pngImage = await doc.embedPng(pngBytes);
-          page.drawImage(pngImage, { x: ann.x, y: ann.y, width: ann.w, height: ann.h });
+
+      for (const entry of texts) {
+        const page = pages[entry.page - 1];
+        if (!page) continue;
+        page.drawText(entry.text, { x: entry.x, y: entry.y, size: entry.size, font, color: hexToRgb(entry.colorHex) });
+      }
+
+      if (sigMode === "type" && sigText.trim()) {
+        const cursiveFont = await doc.embedFont(StandardFonts.TimesRomanItalic);
+        const page = pages[sigPage - 1];
+        if (page) {
+          page.drawText(sigText, { x: sigX, y: sigY, size: sigSize, font: cursiveFont, color: rgb(0.05, 0.05, 0.45) });
+        }
+      } else if (sigMode === "draw" && hasDrawing && canvasRef.current) {
+        const dataUrl = canvasRef.current.toDataURL("image/png");
+        const res = await fetch(dataUrl);
+        const imgBytes = new Uint8Array(await res.arrayBuffer());
+        const pngImage = await doc.embedPng(imgBytes);
+        const page = pages[sigPage - 1];
+        if (page) {
+          page.drawImage(pngImage, { x: sigX, y: sigY, width: sigImgWidth, height: sigImgHeight });
+        }
+      } else if (sigMode === "upload" && sigImageBytes) {
+        const name = sigImageName.toLowerCase();
+        const page = pages[sigPage - 1];
+        if (page) {
+          const img = name.endsWith(".png")
+            ? await doc.embedPng(sigImageBytes)
+            : await doc.embedJpg(sigImageBytes);
+          page.drawImage(img, { x: sigX, y: sigY, width: sigImgWidth, height: sigImgHeight });
         }
       }
-      const outBytes = await doc.save();
-      const blob = new Blob([outBytes], { type: "application/pdf" });
+
+      const saved = await doc.save();
+      const blob = new Blob([saved], { type: "application/pdf" });
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = fileName.replace(".pdf", "") + "-edited.pdf";
+      a.download = fileName.replace(".pdf", "") + "-signed.pdf";
       a.click();
       URL.revokeObjectURL(url);
+      setStatus("✓ PDF downloaded!");
+    } catch (err) {
+      setStatus("Error: " + (err instanceof Error ? err.message : String(err)));
     } finally {
-      setDownloading(false);
+      setLoading(false);
     }
-  }
+  };
+
+  // ─── Render ───────────────────────────────────────────────────────────────
+
+  const sectionClass = "rounded-xl border border-[var(--color-border)] bg-[var(--color-surface)] p-5 space-y-4";
+  const labelClass = "block text-sm font-medium text-[var(--color-text-muted)] mb-1";
+  const inputClass = "w-full rounded-lg border border-[var(--color-border)] bg-[var(--color-bg)] px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)] transition";
+  const btnPrimary = "inline-flex items-center gap-2 rounded-lg bg-[var(--color-primary)] px-4 py-2 text-sm font-medium text-white hover:bg-[var(--color-primary-hover)] transition disabled:opacity-50";
+  const btnGhost = "inline-flex items-center gap-2 rounded-lg border border-[var(--color-border)] px-4 py-2 text-sm font-medium hover:bg-[var(--color-surface-offset)] transition";
 
   return (
-    <div className="space-y-6">
-      {/* Upload */}
-      <div className="border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-xl p-8 text-center">
-        <label className="cursor-pointer flex flex-col items-center gap-3">
-          <FileUp className="w-10 h-10 text-teal-600" />
-          <div>
-            <p className="font-semibold text-gray-800 dark:text-gray-100">Upload your PDF</p>
-            <p className="text-sm text-gray-500 dark:text-gray-400">Click to choose a PDF file</p>
-          </div>
-          <input type="file" accept="application/pdf" className="sr-only" onChange={handleFileUpload} />
-        </label>
+    <div className="space-y-6 max-w-2xl mx-auto">
+
+      {/* Step 1 — Upload PDF */}
+      <div className={sectionClass}>
+        <h2 className="text-base font-semibold">1. Upload PDF</h2>
+        <label className={labelClass}>Choose a PDF file</label>
+        <input type="file" accept="application/pdf" onChange={handlePdfUpload} className={inputClass} />
         {fileName && (
-          <p className="mt-3 text-sm font-medium text-teal-700 dark:text-teal-400">
-            ✓ {fileName} — {pageCount} page{pageCount !== 1 ? "s" : ""}
+          <p className="text-sm text-[var(--color-text-muted)]">
+            📄 <span className="font-medium text-[var(--color-text)]">{fileName}</span> — {pageCount} page(s)
           </p>
         )}
       </div>
 
+      {/* Step 2 — Add Text */}
       {pdfBytes && (
-        <>
-          {/* Page selector */}
-          <div className="flex items-center gap-3">
-            <label className="text-sm font-medium text-gray-700 dark:text-gray-300 whitespace-nowrap">
-              Target page
-            </label>
-            <select
-              value={selectedPage}
-              onChange={(e) => setSelectedPage(Number(e.target.value))}
-              className="border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-1.5 text-sm bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100"
-            >
-              {Array.from({ length: pageCount }, (_, i) => (
-                <option key={i + 1} value={i + 1}>
-                  Page {i + 1}
-                </option>
+        <div className={sectionClass}>
+          <h2 className="text-base font-semibold">2. Add Text (optional)</h2>
+          <div className="grid grid-cols-2 gap-3">
+            <div className="col-span-2">
+              <label className={labelClass}>Text content</label>
+              <input type="text" value={newText} onChange={e => setNewText(e.target.value)} className={inputClass} />
+            </div>
+            <div>
+              <label className={labelClass}>Page (1–{pageCount})</label>
+              <input type="number" min={1} max={pageCount} value={newPage} onChange={e => setNewPage(Number(e.target.value))} className={inputClass} />
+            </div>
+            <div>
+              <label className={labelClass}>Font size (pt)</label>
+              <input type="number" min={6} max={72} value={newSize} onChange={e => setNewSize(Number(e.target.value))} className={inputClass} />
+            </div>
+            <div>
+              <label className={labelClass}>X position (pts from left)</label>
+              <input type="number" min={0} value={newX} onChange={e => setNewX(Number(e.target.value))} className={inputClass} />
+            </div>
+            <div>
+              <label className={labelClass}>Y position (pts from bottom)</label>
+              <input type="number" min={0} value={newY} onChange={e => setNewY(Number(e.target.value))} className={inputClass} />
+            </div>
+            <div className="col-span-2">
+              <label className={labelClass}>Text color</label>
+              <input type="color" value={newColor} onChange={e => setNewColor(e.target.value)} className="h-10 w-full rounded-lg border border-[var(--color-border)] cursor-pointer" />
+            </div>
+          </div>
+          <button onClick={addText} className={btnPrimary}>+ Add text entry</button>
+
+          {texts.length > 0 && (
+            <ul className="divide-y divide-[var(--color-divider)]">
+              {texts.map(t => (
+                <li key={t.id} className="flex items-center justify-between py-2 text-sm">
+                  <span className="text-[var(--color-text)]">
+                    Page {t.page} · "{t.text}" · {t.size}pt
+                  </span>
+                  <button onClick={() => removeText(t.id)} className="text-[var(--color-error)] text-xs hover:underline">Remove</button>
+                </li>
               ))}
-            </select>
-          </div>
-
-          {/* Mode tabs */}
-          <div className="flex gap-2">
-            <button
-              onClick={() => setMode("text")}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                mode === "text"
-                  ? "bg-teal-600 text-white"
-                  : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
-              }`}
-            >
-              <Type className="w-4 h-4" /> Add Text
-            </button>
-            <button
-              onClick={() => setMode("sig")}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
-                mode === "sig"
-                  ? "bg-teal-600 text-white"
-                  : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600"
-              }`}
-            >
-              <Pen className="w-4 h-4" /> Add Signature
-            </button>
-          </div>
-
-          {/* Text panel */}
-          {mode === "text" && (
-            <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-5 space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">Text</label>
-                <input
-                  type="text"
-                  value={textInput}
-                  onChange={(e) => setTextInput(e.target.value)}
-                  className="w-full border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-100"
-                  placeholder="Enter text to add..."
-                />
-              </div>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                <div>
-                  <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Font size</label>
-                  <input
-                    type="number"
-                    value={fontSize}
-                    min={6}
-                    max={72}
-                    onChange={(e) => setFontSize(Number(e.target.value))}
-                    className="w-full border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-100"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Color</label>
-                  <input
-                    type="color"
-                    value={textColor}
-                    onChange={(e) => setTextColor(e.target.value)}
-                    className="w-full h-[38px] border border-gray-200 dark:border-gray-600 rounded-lg cursor-pointer"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">X (from left)</label>
-                  <input
-                    type="number"
-                    value={posX}
-                    onChange={(e) => setPosX(Number(e.target.value))}
-                    className="w-full border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-100"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Y (from bottom)</label>
-                  <input
-                    type="number"
-                    value={posY}
-                    onChange={(e) => setPosY(Number(e.target.value))}
-                    className="w-full border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-100"
-                  />
-                </div>
-              </div>
-              <p className="text-xs text-gray-400 dark:text-gray-500">
-                Coordinates are in PDF points (1 pt = 1/72 inch). A standard 8.5×11" page is 612 × 792 pts. Y=0 is the bottom edge.
-              </p>
-              <button
-                onClick={addTextAnnotation}
-                className="flex items-center gap-2 px-4 py-2 bg-teal-600 hover:bg-teal-700 text-white rounded-lg text-sm font-medium transition-colors"
-              >
-                <Plus className="w-4 h-4" /> Add Text to Page {selectedPage}
-              </button>
-            </div>
+            </ul>
           )}
-
-          {/* Signature panel */}
-          {mode === "sig" && (
-            <div className="bg-gray-50 dark:bg-gray-800 rounded-xl p-5 space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-                  Draw your signature
-                </label>
-                <canvas
-                  ref={sigCanvasRef}
-                  width={500}
-                  height={140}
-                  className="w-full border border-gray-200 dark:border-gray-600 rounded-lg bg-white cursor-crosshair touch-none"
-                  style={{ touchAction: "none" }}
-                  onMouseDown={startDraw}
-                  onMouseMove={draw}
-                  onMouseUp={endDraw}
-                  onMouseLeave={endDraw}
-                  onTouchStart={startDraw}
-                  onTouchMove={draw}
-                  onTouchEnd={endDraw}
-                />
-                <button
-                  onClick={clearSigCanvas}
-                  className="mt-2 flex items-center gap-1.5 text-xs text-gray-500 dark:text-gray-400 hover:text-red-500 transition-colors"
-                >
-                  <Trash2 className="w-3.5 h-3.5" /> Clear
-                </button>
-              </div>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                <div>
-                  <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">X</label>
-                  <input type="number" value={sigX} onChange={(e) => setSigX(Number(e.target.value))} className="w-full border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-100" />
-                </div>
-                <div>
-                  <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Y (from bottom)</label>
-                  <input type="number" value={sigY} onChange={(e) => setSigY(Number(e.target.value))} className="w-full border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-100" />
-                </div>
-                <div>
-                  <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Width</label>
-                  <input type="number" value={sigW} onChange={(e) => setSigW(Number(e.target.value))} className="w-full border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-100" />
-                </div>
-                <div>
-                  <label className="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1">Height</label>
-                  <input type="number" value={sigH} onChange={(e) => setSigH(Number(e.target.value))} className="w-full border border-gray-200 dark:border-gray-600 rounded-lg px-3 py-2 text-sm bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-100" />
-                </div>
-              </div>
-              <button
-                onClick={addSignatureAnnotation}
-                disabled={!hasSig}
-                className="flex items-center gap-2 px-4 py-2 bg-teal-600 hover:bg-teal-700 disabled:opacity-40 disabled:cursor-not-allowed text-white rounded-lg text-sm font-medium transition-colors"
-              >
-                <Plus className="w-4 h-4" /> Add Signature to Page {selectedPage}
-              </button>
-            </div>
-          )}
-
-          {/* Annotation queue */}
-          {annotations.length > 0 && (
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <h3 className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                  Queued additions ({annotations.length})
-                </h3>
-                <button
-                  onClick={() => setAnnotations([])}
-                  className="text-xs text-gray-400 hover:text-red-500 transition-colors"
-                >
-                  Clear all
-                </button>
-              </div>
-              <ul className="space-y-1.5">
-                {annotations.map((ann, i) => (
-                  <li
-                    key={i}
-                    className="flex items-center justify-between bg-gray-50 dark:bg-gray-800 border border-gray-100 dark:border-gray-700 rounded-lg px-3 py-2 text-xs text-gray-600 dark:text-gray-300"
-                  >
-                    <span>
-                      {ann.kind === "text" ? (
-                        <>
-                          <Type className="inline w-3.5 h-3.5 mr-1" />
-                          <strong>Text</strong> — &ldquo;{ann.text}&rdquo; at ({ann.x}, {ann.y}) &middot; Page {ann.page}
-                        </>
-                      ) : (
-                        <>
-                          <Pen className="inline w-3.5 h-3.5 mr-1" />
-                          <strong>Signature</strong> at ({ann.x}, {ann.y}) &middot; Page {ann.page}
-                        </>
-                      )}
-                    </span>
-                    <button
-                      onClick={() => setAnnotations((prev) => prev.filter((_, j) => j !== i))}
-                      className="ml-3 text-gray-300 hover:text-red-500 transition-colors"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-
-          {/* Download */}
-          <button
-            onClick={handleDownload}
-            disabled={annotations.length === 0 || downloading}
-            className="w-full flex items-center justify-center gap-2 px-6 py-3 bg-teal-600 hover:bg-teal-700 disabled:opacity-40 disabled:cursor-not-allowed text-white rounded-xl font-semibold text-sm transition-colors"
-          >
-            <Download className="w-4 h-4" />
-            {downloading ? "Generating PDF…" : "Download Edited PDF"}
-          </button>
-        </>
+        </div>
       )}
+
+      {/* Step 3 — Signature */}
+      {pdfBytes && (
+        <div className={sectionClass}>
+          <h2 className="text-base font-semibold">3. Add Signature (optional)</h2>
+
+          <div className="flex gap-2 flex-wrap">
+            {(["draw", "type", "upload"] as SignatureMode[]).map(m => (
+              <button key={m} onClick={() => setSigMode(m)}
+                className={`px-3 py-1.5 rounded-lg text-sm font-medium border transition ${
+                  sigMode === m
+                    ? "bg-[var(--color-primary)] text-white border-[var(--color-primary)]"
+                    : "border-[var(--color-border)] hover:bg-[var(--color-surface-offset)]"
+                }`}>
+                {m === "draw" ? "✏️ Draw" : m === "type" ? "⌨️ Type" : "📁 Upload image"}
+              </button>
+            ))}
+          </div>
+
+          {sigMode === "draw" && (
+            <div className="space-y-2">
+              <p className="text-xs text-[var(--color-text-muted)]">Draw your signature below:</p>
+              <canvas
+                ref={canvasRef}
+                width={480}
+                height={140}
+                className="w-full rounded-lg border border-[var(--color-border)] bg-white cursor-crosshair touch-none"
+                onMouseDown={startDraw}
+                onMouseMove={draw}
+                onMouseUp={endDraw}
+                onMouseLeave={endDraw}
+                onTouchStart={startDraw}
+                onTouchMove={draw}
+                onTouchEnd={endDraw}
+              />
+              <button onClick={clearCanvas} className={btnGhost}>Clear</button>
+            </div>
+          )}
+
+          {sigMode === "type" && (
+            <div>
+              <label className={labelClass}>Signature text</label>
+              <input
+                type="text"
+                value={sigText}
+                onChange={e => setSigText(e.target.value)}
+                placeholder="Your Name"
+                className={inputClass}
+                style={{ fontStyle: "italic", fontFamily: "Georgia, serif", fontSize: "18px" }}
+              />
+              <p className="text-xs text-[var(--color-text-muted)] mt-1">Rendered in Times Roman Italic on the PDF.</p>
+            </div>
+          )}
+
+          {sigMode === "upload" && (
+            <div>
+              <label className={labelClass}>Signature image (PNG or JPG)</label>
+              <input type="file" accept="image/png,image/jpeg" onChange={handleSigImageUpload} className={inputClass} />
+              {sigImageName && <p className="text-xs text-[var(--color-text-muted)] mt-1">Loaded: {sigImageName}</p>}
+            </div>
+          )}
+
+          <div className="grid grid-cols-2 gap-3 pt-2">
+            <div>
+              <label className={labelClass}>Page (1–{pageCount})</label>
+              <input type="number" min={1} max={pageCount} value={sigPage} onChange={e => setSigPage(Number(e.target.value))} className={inputClass} />
+            </div>
+            <div>
+              <label className={labelClass}>Font size / draw height (pt)</label>
+              <input type="number" min={8} max={96} value={sigSize} onChange={e => setSigSize(Number(e.target.value))} className={inputClass} />
+            </div>
+            <div>
+              <label className={labelClass}>X (pts from left)</label>
+              <input type="number" min={0} value={sigX} onChange={e => setSigX(Number(e.target.value))} className={inputClass} />
+            </div>
+            <div>
+              <label className={labelClass}>Y (pts from bottom)</label>
+              <input type="number" min={0} value={sigY} onChange={e => setSigY(Number(e.target.value))} className={inputClass} />
+            </div>
+            {(sigMode === "draw" || sigMode === "upload") && (
+              <>
+                <div>
+                  <label className={labelClass}>Width (pts)</label>
+                  <input type="number" min={20} value={sigImgWidth} onChange={e => setSigImgWidth(Number(e.target.value))} className={inputClass} />
+                </div>
+                <div>
+                  <label className={labelClass}>Height (pts)</label>
+                  <input type="number" min={10} value={sigImgHeight} onChange={e => setSigImgHeight(Number(e.target.value))} className={inputClass} />
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Step 4 — Generate */}
+      {pdfBytes && (
+        <div className={sectionClass}>
+          <h2 className="text-base font-semibold">4. Download Modified PDF</h2>
+          <p className="text-sm text-[var(--color-text-muted)]">
+            {texts.length} text {texts.length === 1 ? "entry" : "entries"} queued.
+            {sigMode === "type" && sigText ? " Typed signature ready." : ""}
+            {sigMode === "draw" && hasDrawing ? " Drawn signature ready." : ""}
+            {sigMode === "upload" && sigImageBytes ? " Image signature ready." : ""}
+          </p>
+          <button onClick={generate} disabled={loading} className={btnPrimary}>
+            {loading ? "Processing…" : "⬇ Generate & Download PDF"}
+          </button>
+          {status && <p className="text-sm text-[var(--color-text-muted)] mt-2">{status}</p>}
+        </div>
+      )}
+
+      <p className="text-xs text-[var(--color-text-faint)] text-center pb-4">
+        Your file is processed entirely in your browser — nothing is uploaded to any server.
+      </p>
     </div>
   );
 }
