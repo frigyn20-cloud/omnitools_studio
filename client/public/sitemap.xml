@@ -4,7 +4,7 @@
         xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9
         http://www.sitemaps.org/schemas/sitemap/0.9/sitemap.xsd">
 
-  <!-- ===== CORE PAGES ===== -->
+  <!-- ===== CORE PAGES (7) ===== -->
   <url><loc>https://omnitoolstudio.com/</loc><lastmod>2026-05-19</lastmod><changefreq>weekly</changefreq><priority>1.0</priority></url>
   <url><loc>https://omnitoolstudio.com/tools</loc><lastmod>2026-05-19</lastmod><changefreq>weekly</changefreq><priority>0.9</priority></url>
   <url><loc>https://omnitoolstudio.com/blog</loc><lastmod>2026-05-19</lastmod><changefreq>weekly</changefreq><priority>0.8</priority></url>
@@ -13,7 +13,7 @@
   <url><loc>https://omnitoolstudio.com/privacy</loc><lastmod>2026-05-19</lastmod><changefreq>yearly</changefreq><priority>0.4</priority></url>
   <url><loc>https://omnitoolstudio.com/terms</loc><lastmod>2026-05-19</lastmod><changefreq>yearly</changefreq><priority>0.4</priority></url>
 
-  <!-- ===== CORE TOOL PAGES ===== -->
+  <!-- ===== CORE TOOL PAGES (22) ===== -->
   <url><loc>https://omnitoolstudio.com/after-tax-salary-calculator</loc><lastmod>2026-05-19</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
   <url><loc>https://omnitoolstudio.com/discount-calculator</loc><lastmod>2026-05-19</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
   <url><loc>https://omnitoolstudio.com/tip-calculator</loc><lastmod>2026-05-19</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
@@ -22,6 +22,7 @@
   <url><loc>https://omnitoolstudio.com/savings-calculator</loc><lastmod>2026-05-19</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
   <url><loc>https://omnitoolstudio.com/calorie-calculator</loc><lastmod>2026-05-19</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://omnitoolstudio.com/date-calculator</loc><lastmod>2026-05-19</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://omnitoolstudio.com/age-calculator</loc><lastmod>2026-05-19</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
   <url><loc>https://omnitoolstudio.com/unit-converter</loc><lastmod>2026-05-19</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
   <url><loc>https://omnitoolstudio.com/currency-converter</loc><lastmod>2026-05-19</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
   <url><loc>https://omnitoolstudio.com/time-zone-converter</loc><lastmod>2026-05-19</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
@@ -35,10 +36,9 @@
   <url><loc>https://omnitoolstudio.com/countdown-timer</loc><lastmod>2026-05-19</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
   <url><loc>https://omnitoolstudio.com/password-generator</loc><lastmod>2026-05-19</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
   <url><loc>https://omnitoolstudio.com/text-tools</loc><lastmod>2026-05-19</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
-  <url><loc>https://omnitoolstudio.com/age-calculator</loc><lastmod>2026-05-19</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
   <url><loc>https://omnitoolstudio.com/ai-text-summarizer</loc><lastmod>2026-05-19</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
 
-  <!-- ===== DISCOUNT / PERCENT SEO PAGES ===== -->
+  <!-- ===== DISCOUNT / PERCENT SEO PAGES (8) ===== -->
   <url><loc>https://omnitoolstudio.com/percent-off-calculator</loc><lastmod>2026-05-19</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
   <url><loc>https://omnitoolstudio.com/25-percent-off-calculator</loc><lastmod>2026-05-19</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
   <url><loc>https://omnitoolstudio.com/50-percent-off-calculator</loc><lastmod>2026-05-19</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
@@ -48,7 +48,7 @@
   <url><loc>https://omnitoolstudio.com/discount-calculator-how-much-do-i-save</loc><lastmod>2026-05-19</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
   <url><loc>https://omnitoolstudio.com/percentage-of-a-number-calculator</loc><lastmod>2026-05-19</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
 
-  <!-- ===== DATE SEO PAGES ===== -->
+  <!-- ===== DATE SEO PAGES (7) ===== -->
   <url><loc>https://omnitoolstudio.com/days-between-dates-calculator</loc><lastmod>2026-05-19</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
   <url><loc>https://omnitoolstudio.com/business-days-between-dates</loc><lastmod>2026-05-19</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
   <url><loc>https://omnitoolstudio.com/date-calculator-add-days</loc><lastmod>2026-05-19</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
@@ -56,15 +56,13 @@
   <url><loc>https://omnitoolstudio.com/how-many-days-between-two-dates</loc><lastmod>2026-05-19</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
   <url><loc>https://omnitoolstudio.com/how-many-days-until-my-birthday</loc><lastmod>2026-05-19</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
   <url><loc>https://omnitoolstudio.com/how-old-am-i-calculator</loc><lastmod>2026-05-19</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
-  <url><loc>https://omnitoolstudio.com/age-calculator</loc><lastmod>2026-05-19</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
 
-  <!-- ===== FINANCE SEO PAGES ===== -->
+  <!-- ===== FINANCE SEO PAGES (12) ===== -->
   <url><loc>https://omnitoolstudio.com/loan-payment-calculator</loc><lastmod>2026-05-19</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
   <url><loc>https://omnitoolstudio.com/monthly-loan-payment-calculator</loc><lastmod>2026-05-19</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
   <url><loc>https://omnitoolstudio.com/savings-goal-calculator</loc><lastmod>2026-05-19</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
   <url><loc>https://omnitoolstudio.com/hourly-to-salary-calculator</loc><lastmod>2026-05-19</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
   <url><loc>https://omnitoolstudio.com/salary-to-hourly-calculator</loc><lastmod>2026-05-19</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
-  <url><loc>https://omnitoolstudio.com/after-tax-salary-calculator</loc><lastmod>2026-05-19</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
   <url><loc>https://omnitoolstudio.com/student-budget-calculator</loc><lastmod>2026-05-19</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
   <url><loc>https://omnitoolstudio.com/monthly-budget-planner-free</loc><lastmod>2026-05-19</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
   <url><loc>https://omnitoolstudio.com/car-loan-monthly-payment-calculator</loc><lastmod>2026-05-19</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
@@ -74,7 +72,7 @@
   <url><loc>https://omnitoolstudio.com/how-much-tip-on-100-dollars</loc><lastmod>2026-05-19</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
   <url><loc>https://omnitoolstudio.com/tip-calculator-split-bill-between-friends</loc><lastmod>2026-05-19</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
 
-  <!-- ===== CONVERTER SEO PAGES ===== -->
+  <!-- ===== CONVERTER SEO PAGES (10) ===== -->
   <url><loc>https://omnitoolstudio.com/kg-to-lbs-converter</loc><lastmod>2026-05-19</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
   <url><loc>https://omnitoolstudio.com/lbs-to-kg-converter</loc><lastmod>2026-05-19</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
   <url><loc>https://omnitoolstudio.com/celsius-to-fahrenheit-converter</loc><lastmod>2026-05-19</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
@@ -86,7 +84,7 @@
   <url><loc>https://omnitoolstudio.com/unix-timestamp-converter-online</loc><lastmod>2026-05-19</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
   <url><loc>https://omnitoolstudio.com/convert-date-to-unix-timestamp</loc><lastmod>2026-05-19</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
 
-  <!-- ===== TEXT / QR / PASSWORD SEO PAGES ===== -->
+  <!-- ===== TEXT / QR / PASSWORD SEO PAGES (8) ===== -->
   <url><loc>https://omnitoolstudio.com/character-counter</loc><lastmod>2026-05-19</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
   <url><loc>https://omnitoolstudio.com/word-count-checker-free</loc><lastmod>2026-05-19</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
   <url><loc>https://omnitoolstudio.com/character-counter-for-twitter-and-instagram</loc><lastmod>2026-05-19</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
@@ -96,13 +94,12 @@
   <url><loc>https://omnitoolstudio.com/text-case-converter-online</loc><lastmod>2026-05-19</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
   <url><loc>https://omnitoolstudio.com/url-slug-generator-from-title</loc><lastmod>2026-05-19</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
 
-  <!-- ===== AI SUMMARIZER SEO PAGES ===== -->
-  <url><loc>https://omnitoolstudio.com/ai-text-summarizer</loc><lastmod>2026-05-19</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
+  <!-- ===== AI SUMMARIZER SEO PAGES (3) ===== -->
   <url><loc>https://omnitoolstudio.com/summarize-article-online</loc><lastmod>2026-05-19</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
   <url><loc>https://omnitoolstudio.com/summarize-essay-free</loc><lastmod>2026-05-19</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
   <url><loc>https://omnitoolstudio.com/free-ai-summarizer-no-login</loc><lastmod>2026-05-19</lastmod><changefreq>monthly</changefreq><priority>0.9</priority></url>
 
-  <!-- ===== BLOG POSTS ===== -->
+  <!-- ===== BLOG POSTS (10) ===== -->
   <url><loc>https://omnitoolstudio.com/blog/how-to-calculate-a-discount</loc><lastmod>2026-05-19</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://omnitoolstudio.com/blog/how-much-should-you-tip</loc><lastmod>2026-05-19</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://omnitoolstudio.com/blog/student-monthly-budget-basics</loc><lastmod>2026-05-19</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
@@ -113,5 +110,7 @@
   <url><loc>https://omnitoolstudio.com/blog/qr-code-ideas-for-small-projects</loc><lastmod>2026-05-19</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://omnitoolstudio.com/blog/word-count-tips-for-essays</loc><lastmod>2026-05-19</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://omnitoolstudio.com/blog/password-safety-basics</loc><lastmod>2026-05-19</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+
+  <!-- TOTAL: 88 unique URLs -->
 
 </urlset>
