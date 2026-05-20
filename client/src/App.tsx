@@ -32,6 +32,7 @@ import { queryClient } from "./lib/queryClient";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/not-found";
+import { PdfAnnotateTool } from "./PdfAnnotateTool";
 
 type Category = "calculators" | "converters" | "utilities";
 type ToolFilter = "all" | Category;
@@ -116,6 +117,7 @@ const tools: Tool[] = [
   { id: "password", slug: "password-generator", category: "utilities", name: "Password", description: "Generate strong passwords.", icon: KeyRound, keyword: "password generator", example: "Use it to create a strong random password with your preferred length." },
   { id: "text", slug: "text-tools", category: "utilities", name: "Text Tools", description: "Case, slug, reverse, cleanup.", icon: Sparkles, keyword: "online text tools", example: "Use it to uppercase, lowercase, title case, slugify, clean, or reverse text." },
   { id: "summarizer", slug: "ai-text-summarizer", category: "utilities", name: "AI Summarizer", description: "Summarize any text in seconds with AI.", icon: Brain, keyword: "ai text summarizer free", example: "Use it to summarize articles, essays, notes, or any long text into a short, clear summary." },
+  { id: "pdf-annotate", slug: "pdf-signature-text-tool", category: "utilities", name: "PDF Annotate", description: "Add text and signatures to any PDF in your browser.", icon: FileText, keyword: "pdf signature tool online", example: "Use it to add text annotations or draw a signature on any PDF file, then download the annotated result." },
 ];
 
 const toolTranslations: Record<string, { name: string; description: string; keyword: string; example: string }> = {
@@ -813,6 +815,7 @@ function UtilityPanels({ activeId }: { activeId: string }) {
   if (activeId === "stopwatch") return <StopwatchTool />;
   if (activeId === "countdown") return <CountdownTool />;
   if (activeId === "password") return <PasswordTool />;
+  if (activeId === "pdf-annotate") return <PdfAnnotateTool />;
   if (activeId === "summarizer") return <SummarizerTool />;
   return <TextTool />;
 }
