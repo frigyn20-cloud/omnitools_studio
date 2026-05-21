@@ -1,6 +1,6 @@
 import { useRef, useState, useEffect, useCallback } from "react";
 import { jsPDF } from "jspdf";
-import { Download, Pen, Type, Trash2, RotateCcw } from "lucide-react";
+import { Download, Pen, Type, Trash2, RotateCcw, MousePointer2 } from "lucide-react";
 
 // ─── Types ─────────────────────────────────────────────────────────────────────
 type TextAnnotation = {
@@ -13,7 +13,7 @@ type TextAnnotation = {
   color: string;
 };
 
-type Mode = "text" | "signature" | "select";
+type Mode = "text" | "signature" | "select" | "clear";
 
 // ─── Signature Pad ─────────────────────────────────────────────────────────────
 function SignaturePad({
@@ -37,11 +37,7 @@ function SignaturePad({
     return { x: (e as React.MouseEvent).clientX - rect.left, y: (e as React.MouseEvent).clientY - rect.top };
   };
 
-  const start = (e: React.MouseEvent | React.TouchEvent) => {
-    drawing.current = true;
-    lastPos.current = getPos(e);
-  };
-
+  const start = (e: React.MouseEvent | React.TouchEvent) => { drawing.current = true; lastPos.current = getPos(e); };
   const move = (e: React.MouseEvent | React.TouchEvent) => {
     if (!drawing.current || !lastPos.current) return;
     const ctx = canvasRef.current!.getContext("2d")!;
@@ -55,37 +51,18 @@ function SignaturePad({
     ctx.stroke();
     lastPos.current = pos;
   };
-
-  const end = () => {
-    drawing.current = false;
-    lastPos.current = null;
-  };
-
-  const clear = () => {
-    const canvas = canvasRef.current!;
-    canvas.getContext("2d")!.clearRect(0, 0, canvas.width, canvas.height);
-  };
-
-  const save = () => {
-    const canvas = canvasRef.current!;
-    onSave(canvas.toDataURL("image/png"));
-  };
+  const end = () => { drawing.current = false; lastPos.current = null; };
+  const clear = () => { const c = canvasRef.current!; c.getContext("2d")!.clearRect(0, 0, c.width, c.height); };
+  const save = () => { onSave(canvasRef.current!.toDataURL("image/png")); };
 
   return (
     <div className="flex flex-col gap-3">
       <p className="text-sm font-bold text-muted-foreground">Draw your signature below</p>
       <canvas
-        ref={canvasRef}
-        width={400}
-        height={160}
+        ref={canvasRef} width={400} height={160}
         className="w-full rounded-2xl border-2 border-dashed border-primary/50 bg-white cursor-crosshair touch-none"
-        onMouseDown={start}
-        onMouseMove={move}
-        onMouseUp={end}
-        onMouseLeave={end}
-        onTouchStart={start}
-        onTouchMove={move}
-        onTouchEnd={end}
+        onMouseDown={start} onMouseMove={move} onMouseUp={end} onMouseLeave={end}
+        onTouchStart={start} onTouchMove={move} onTouchEnd={end}
       />
       <div className="flex flex-wrap gap-2">
         <button onClick={clear} className="inline-flex h-10 items-center gap-2 rounded-xl border border-border/70 bg-card px-4 text-sm font-bold">
@@ -100,6 +77,33 @@ function SignaturePad({
       </div>
     </div>
   );
+}
+
+// ─── Hit test: returns annotation id if click is near its text ─────────────────
+function hitTestAnnotation(
+  annotations: TextAnnotation[],
+  page: number,
+  relX: number,
+  relY: number
+): string | null {
+  // Iterate in reverse so topmost (last drawn) wins
+  for (let i = annotations.length - 1; i >= 0; i--) {
+    const a = annotations[i];
+    if (a.page !== page) continue;
+    const charWidth = a.fontSize * 0.55;
+    const w = a.text.length * charWidth;
+    const h = a.fontSize;
+    // x,y in annotation is baseline-left; build a bounding box
+    if (
+      relX >= a.x - 0.005 &&
+      relX <= a.x + w / 1000 + 0.005 &&
+      relY >= a.y - h / 1000 - 0.005 &&
+      relY <= a.y + 0.005
+    ) {
+      return a.id;
+    }
+  }
+  return null;
 }
 
 // ─── Main Tool ─────────────────────────────────────────────────────────────────
@@ -120,15 +124,22 @@ export function PdfAnnotateTool() {
   const [fontSize, setFontSize] = useState(14);
   const [fontColor, setFontColor] = useState("#1a1a2e");
   const [status, setStatus] = useState("Upload a PDF to get started.");
+
+  // ── Selection + drag state ────────────────────────────────────────────────
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const dragging = useRef(false);
+  const dragStart = useRef<{ mouseX: number; mouseY: number; annX: number; annY: number } | null>(null);
+
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // ── Load PDF via PDF.js from CDN ──────────────────────────────────────────
+  const selectedAnnotation = annotations.find((a) => a.id === selectedId) ?? null;
+
+  // ── Load PDF ──────────────────────────────────────────────────────────────
   const loadPdf = useCallback(async (file: File) => {
     setLoading(true);
     setStatus("Loading PDF…");
     try {
-      // Dynamically load PDF.js from CDN
       if (!(window as any).pdfjsLib) {
         await new Promise<void>((resolve, reject) => {
           const script = document.createElement("script");
@@ -158,6 +169,7 @@ export function PdfAnnotateTool() {
       setCurrentPage(0);
       setAnnotations([]);
       setSigAnnotations([]);
+      setSelectedId(null);
       setStatus(`PDF loaded — ${numPages} page${numPages !== 1 ? "s" : ""}. Click a mode below to start annotating.`);
     } catch {
       setStatus("Could not load PDF. Make sure it's a valid, unlocked PDF file.");
@@ -176,6 +188,7 @@ export function PdfAnnotateTool() {
       canvas.height = img.height;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
       ctx.drawImage(img, 0, 0);
+
       // Draw text annotations
       annotations
         .filter((a) => a.page === currentPage)
@@ -183,7 +196,25 @@ export function PdfAnnotateTool() {
           ctx.font = `${a.fontSize}px Arial, sans-serif`;
           ctx.fillStyle = a.color;
           ctx.fillText(a.text, a.x * canvas.width, a.y * canvas.height);
+
+          // Selection highlight
+          if (a.id === selectedId) {
+            const tw = ctx.measureText(a.text).width;
+            const th = a.fontSize;
+            ctx.save();
+            ctx.strokeStyle = "#0ea5e9";
+            ctx.lineWidth = 2;
+            ctx.setLineDash([5, 3]);
+            ctx.strokeRect(
+              a.x * canvas.width - 4,
+              a.y * canvas.height - th - 2,
+              tw + 8,
+              th + 8
+            );
+            ctx.restore();
+          }
         });
+
       // Draw signature annotations
       sigAnnotations
         .filter((s) => s.page === currentPage)
@@ -197,27 +228,84 @@ export function PdfAnnotateTool() {
         });
     };
     img.src = pageImages[currentPage];
-  }, [pageImages, currentPage, annotations, sigAnnotations, signature]);
+  }, [pageImages, currentPage, annotations, sigAnnotations, signature, selectedId]);
 
-  // ── Canvas click handler ──────────────────────────────────────────────────
-  const handleCanvasClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
+  // ── Helpers: relative coords from mouse event ─────────────────────────────
+  const getRelativeCoords = (e: React.MouseEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current!;
     const rect = canvas.getBoundingClientRect();
     const scaleX = canvas.width / rect.width;
     const scaleY = canvas.height / rect.height;
-    const x = ((e.clientX - rect.left) * scaleX) / canvas.width;
-    const y = ((e.clientY - rect.top) * scaleY) / canvas.height;
+    const px = (e.clientX - rect.left) * scaleX;
+    const py = (e.clientY - rect.top) * scaleY;
+    return { px, py, relX: px / canvas.width, relY: py / canvas.height };
+  };
+
+  // ── Mouse down ────────────────────────────────────────────────────────────
+  const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    if (mode !== "select") return;
+    const { relX, relY, px, py } = getRelativeCoords(e);
+    const hit = hitTestAnnotation(annotations, currentPage, relX, relY);
+    if (hit) {
+      setSelectedId(hit);
+      const ann = annotations.find((a) => a.id === hit)!;
+      dragging.current = true;
+      dragStart.current = {
+        mouseX: px,
+        mouseY: py,
+        annX: ann.x,
+        annY: ann.y,
+      };
+    } else {
+      setSelectedId(null);
+    }
+  };
+
+  // ── Mouse move ────────────────────────────────────────────────────────────
+  const handleMouseMove = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    if (!dragging.current || !dragStart.current || !selectedId) return;
+    const canvas = canvasRef.current!;
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / rect.width;
+    const scaleY = canvas.height / rect.height;
+    const px = (e.clientX - rect.left) * scaleX;
+    const py = (e.clientY - rect.top) * scaleY;
+    const dx = (px - dragStart.current.mouseX) / canvas.width;
+    const dy = (py - dragStart.current.mouseY) / canvas.height;
+    setAnnotations((prev) =>
+      prev.map((a) =>
+        a.id === selectedId
+          ? { ...a, x: Math.max(0, Math.min(1, dragStart.current!.annX + dx)), y: Math.max(0, Math.min(1, dragStart.current!.annY + dy)) }
+          : a
+      )
+    );
+  };
+
+  // ── Mouse up ──────────────────────────────────────────────────────────────
+  const handleMouseUp = () => {
+    dragging.current = false;
+    dragStart.current = null;
+  };
+
+  // ── Canvas click (text + signature placement) ─────────────────────────────
+  const handleCanvasClick = (e: React.MouseEvent<HTMLCanvasElement>) => {
+    const { relX, relY } = getRelativeCoords(e);
+
     if (mode === "text") {
-      setPendingText({ x, y });
-      setTextInput("");
-    } else if (mode === "signature") {
-      if (!signature) {
-        setShowSigPad(true);
+      // If clicking an existing annotation, select it instead of creating new
+      const hit = hitTestAnnotation(annotations, currentPage, relX, relY);
+      if (hit) {
+        setSelectedId(hit);
+        setMode("select");
         return;
       }
+      setPendingText({ x: relX, y: relY });
+      setTextInput("");
+    } else if (mode === "signature") {
+      if (!signature) { setShowSigPad(true); return; }
       setSigAnnotations((prev) => [
         ...prev,
-        { id: crypto.randomUUID(), page: currentPage, x, y, w: 0.25, h: 0.08 },
+        { id: crypto.randomUUID(), page: currentPage, x: relX, y: relY, w: 0.25, h: 0.08 },
       ]);
     }
   };
@@ -240,51 +328,58 @@ export function PdfAnnotateTool() {
     setTextInput("");
   };
 
-  // ── Download annotated PDF ────────────────────────────────────────────────
+  const updateSelected = (patch: Partial<TextAnnotation>) => {
+    if (!selectedId) return;
+    setAnnotations((prev) => prev.map((a) => (a.id === selectedId ? { ...a, ...patch } : a)));
+  };
+
+  const deleteSelected = () => {
+    setAnnotations((prev) => prev.filter((a) => a.id !== selectedId));
+    setSelectedId(null);
+    setMode("text");
+  };
+
+  // ── Download ──────────────────────────────────────────────────────────────
   const downloadPdf = async () => {
     if (pageImages.length === 0) return;
     setStatus("Generating annotated PDF…");
     const pdf = new jsPDF({ unit: "mm", format: "a4" });
     const pW = pdf.internal.pageSize.getWidth();
     const pH = pdf.internal.pageSize.getHeight();
-
     for (let i = 0; i < pageImages.length; i++) {
       if (i > 0) pdf.addPage();
-      // Composite page: base image + all annotations drawn on a temp canvas
       const tempCanvas = document.createElement("canvas");
       const baseImg = await new Promise<HTMLImageElement>((res) => {
-        const img = new Image();
-        img.onload = () => res(img);
-        img.src = pageImages[i];
+        const img = new Image(); img.onload = () => res(img); img.src = pageImages[i];
       });
       tempCanvas.width = baseImg.width;
       tempCanvas.height = baseImg.height;
       const ctx = tempCanvas.getContext("2d")!;
       ctx.drawImage(baseImg, 0, 0);
-      // Text
-      annotations
-        .filter((a) => a.page === i)
-        .forEach((a) => {
-          ctx.font = `${a.fontSize * 1.5}px Arial, sans-serif`;
-          ctx.fillStyle = a.color;
-          ctx.fillText(a.text, a.x * tempCanvas.width, a.y * tempCanvas.height);
-        });
-      // Signatures
+      annotations.filter((a) => a.page === i).forEach((a) => {
+        ctx.font = `${a.fontSize * 1.5}px Arial, sans-serif`;
+        ctx.fillStyle = a.color;
+        ctx.fillText(a.text, a.x * tempCanvas.width, a.y * tempCanvas.height);
+      });
       for (const s of sigAnnotations.filter((s) => s.page === i)) {
         if (!signature) continue;
         const sImg = await new Promise<HTMLImageElement>((res) => {
-          const img = new Image();
-          img.onload = () => res(img);
-          img.src = signature;
+          const img = new Image(); img.onload = () => res(img); img.src = signature;
         });
         ctx.drawImage(sImg, s.x * tempCanvas.width, s.y * tempCanvas.height, s.w * tempCanvas.width, s.h * tempCanvas.height);
       }
-      const composite = tempCanvas.toDataURL("image/png");
-      pdf.addImage(composite, "PNG", 0, 0, pW, pH, undefined, "FAST");
+      pdf.addImage(tempCanvas.toDataURL("image/png"), "PNG", 0, 0, pW, pH, undefined, "FAST");
     }
     pdf.save(`${pdfFile?.name.replace(/\.pdf$/i, "") || "annotated"}-annotated.pdf`);
     setStatus("Annotated PDF downloaded.");
   };
+
+  // ── Canvas cursor ─────────────────────────────────────────────────────────
+  const canvasCursor =
+    mode === "text" ? "cursor-text" :
+    mode === "signature" ? "cursor-crosshair" :
+    mode === "select" ? (dragging.current ? "cursor-grabbing" : "cursor-grab") :
+    "cursor-default";
 
   // ── UI ────────────────────────────────────────────────────────────────────
   return (
@@ -302,13 +397,8 @@ export function PdfAnnotateTool() {
           <span className="text-xs text-muted-foreground">Everything stays in your browser — nothing is uploaded.</span>
           <input
             data-testid="input-file-pdf-annotate"
-            className="sr-only"
-            type="file"
-            accept="application/pdf"
-            onChange={(e) => {
-              const f = e.target.files?.[0];
-              if (f) { setPdfFile(f); loadPdf(f); }
-            }}
+            className="sr-only" type="file" accept="application/pdf"
+            onChange={(e) => { const f = e.target.files?.[0]; if (f) { setPdfFile(f); loadPdf(f); } }}
           />
         </label>
       )}
@@ -329,23 +419,24 @@ export function PdfAnnotateTool() {
             {/* Mode toolbar */}
             <div className="flex flex-wrap items-center gap-2">
               <span className="text-xs font-black uppercase tracking-[0.15em] text-muted-foreground">Mode:</span>
-              {(["text", "signature", "select"] as Mode[]).map((m) => (
+              {(["text", "select", "signature", "clear"] as Mode[]).map((m) => (
                 <button
                   key={m}
-                  onClick={() => setMode(m)}
+                  onClick={() => { setMode(m); if (m !== "select") setSelectedId(null); }}
                   className={`inline-flex h-9 items-center gap-2 rounded-xl px-3 text-sm font-black transition ${
                     mode === m ? "bg-primary text-primary-foreground" : "border border-border/70 bg-card hover:bg-secondary"
                   }`}
                 >
                   {m === "text" && <Type className="h-4 w-4" />}
+                  {m === "select" && <MousePointer2 className="h-4 w-4" />}
                   {m === "signature" && <Pen className="h-4 w-4" />}
-                  {m === "select" && <Trash2 className="h-4 w-4" />}
-                  {m === "text" ? "Add Text" : m === "signature" ? "Signature" : "Clear All"}
+                  {m === "clear" && <Trash2 className="h-4 w-4" />}
+                  {m === "text" ? "Add Text" : m === "select" ? "Select & Move" : m === "signature" ? "Signature" : "Clear All"}
                 </button>
               ))}
-              {mode === "select" && (
+              {mode === "clear" && (
                 <button
-                  onClick={() => { setAnnotations([]); setSigAnnotations([]); setMode("text"); }}
+                  onClick={() => { setAnnotations([]); setSigAnnotations([]); setSelectedId(null); setMode("text"); }}
                   className="inline-flex h-9 items-center gap-2 rounded-xl border border-destructive/50 bg-destructive/10 px-3 text-sm font-black text-destructive"
                 >
                   Confirm Clear
@@ -357,15 +448,17 @@ export function PdfAnnotateTool() {
             <div ref={containerRef} className="relative w-full overflow-auto rounded-2xl border border-border/70 bg-card shadow-sm">
               <canvas
                 ref={canvasRef}
-                className={`w-full ${
-                  mode === "text" ? "cursor-text" : mode === "signature" ? "cursor-crosshair" : "cursor-default"
-                }`}
+                className={`w-full select-none ${canvasCursor}`}
                 onClick={handleCanvasClick}
+                onMouseDown={handleMouseDown}
+                onMouseMove={handleMouseMove}
+                onMouseUp={handleMouseUp}
+                onMouseLeave={handleMouseUp}
                 data-testid="canvas-pdf-annotate"
               />
             </div>
 
-            {/* Inline text input popup */}
+            {/* Inline text input */}
             {pendingText && (
               <div className="rounded-2xl border border-primary/40 bg-card p-4 shadow-md">
                 <p className="mb-3 text-sm font-black">Type your annotation text</p>
@@ -378,28 +471,16 @@ export function PdfAnnotateTool() {
                     onChange={(e) => setTextInput(e.target.value)}
                     onKeyDown={(e) => { if (e.key === "Enter") addTextAnnotation(); if (e.key === "Escape") setPendingText(null); }}
                   />
-                  <input
-                    type="number"
-                    min={8}
-                    max={72}
+                  <input type="number" min={8} max={72}
                     className="h-11 w-20 rounded-xl border border-border/70 bg-secondary px-3 text-sm text-foreground outline-none focus:border-primary"
-                    value={fontSize}
-                    onChange={(e) => setFontSize(Number(e.target.value))}
-                    title="Font size"
+                    value={fontSize} onChange={(e) => setFontSize(Number(e.target.value))} title="Font size"
                   />
-                  <input
-                    type="color"
+                  <input type="color"
                     className="h-11 w-12 cursor-pointer rounded-xl border border-border/70 bg-secondary p-1"
-                    value={fontColor}
-                    onChange={(e) => setFontColor(e.target.value)}
-                    title="Text color"
+                    value={fontColor} onChange={(e) => setFontColor(e.target.value)} title="Text color"
                   />
-                  <button onClick={addTextAnnotation} className="h-11 rounded-xl bg-primary px-4 text-sm font-black text-primary-foreground">
-                    Place
-                  </button>
-                  <button onClick={() => setPendingText(null)} className="h-11 rounded-xl border border-border/70 bg-card px-4 text-sm font-bold">
-                    Cancel
-                  </button>
+                  <button onClick={addTextAnnotation} className="h-11 rounded-xl bg-primary px-4 text-sm font-black text-primary-foreground">Place</button>
+                  <button onClick={() => setPendingText(null)} className="h-11 rounded-xl border border-border/70 bg-card px-4 text-sm font-bold">Cancel</button>
                 </div>
               </div>
             )}
@@ -417,21 +498,91 @@ export function PdfAnnotateTool() {
 
           {/* Sidebar */}
           <div className="flex flex-col gap-4">
+
+            {/* ── Edit selected annotation ── */}
+            {selectedAnnotation ? (
+              <div className="rounded-2xl border border-primary/40 bg-card p-4 shadow-sm">
+                <p className="mb-3 text-xs font-black uppercase tracking-[0.15em] text-primary">Edit Text</p>
+
+                <label className="mb-1 block text-xs font-bold text-muted-foreground">Content</label>
+                <input
+                  className="mb-3 h-10 w-full rounded-xl border border-border/70 bg-secondary px-3 text-sm text-foreground outline-none focus:border-primary"
+                  value={selectedAnnotation.text}
+                  onChange={(e) => updateSelected({ text: e.target.value })}
+                />
+
+                <label className="mb-1 block text-xs font-bold text-muted-foreground">Font size (px)</label>
+                <div className="mb-3 flex items-center gap-2">
+                  <input
+                    type="range" min={8} max={72} step={1}
+                    className="flex-1 accent-primary"
+                    value={selectedAnnotation.fontSize}
+                    onChange={(e) => updateSelected({ fontSize: Number(e.target.value) })}
+                  />
+                  <span className="w-10 text-center text-sm font-black">{selectedAnnotation.fontSize}</span>
+                </div>
+
+                <label className="mb-1 block text-xs font-bold text-muted-foreground">Color</label>
+                <input
+                  type="color"
+                  className="mb-4 h-10 w-full cursor-pointer rounded-xl border border-border/70 bg-secondary p-1"
+                  value={selectedAnnotation.color}
+                  onChange={(e) => updateSelected({ color: e.target.value })}
+                />
+
+                <p className="mb-1 text-xs font-bold text-muted-foreground">Position (drag on canvas to move)</p>
+                <div className="mb-4 grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="text-xs text-muted-foreground">X offset</label>
+                    <input type="number" min={0} max={1} step={0.001}
+                      className="h-9 w-full rounded-xl border border-border/70 bg-secondary px-2 text-sm outline-none focus:border-primary"
+                      value={parseFloat(selectedAnnotation.x.toFixed(3))}
+                      onChange={(e) => updateSelected({ x: Number(e.target.value) })}
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs text-muted-foreground">Y offset</label>
+                    <input type="number" min={0} max={1} step={0.001}
+                      className="h-9 w-full rounded-xl border border-border/70 bg-secondary px-2 text-sm outline-none focus:border-primary"
+                      value={parseFloat(selectedAnnotation.y.toFixed(3))}
+                      onChange={(e) => updateSelected({ y: Number(e.target.value) })}
+                    />
+                  </div>
+                </div>
+
+                <button
+                  onClick={deleteSelected}
+                  className="flex h-9 w-full items-center justify-center gap-2 rounded-xl border border-destructive/50 bg-destructive/10 text-sm font-black text-destructive hover:bg-destructive/20"
+                >
+                  <Trash2 className="h-4 w-4" /> Delete this annotation
+                </button>
+              </div>
+            ) : (
+              /* ── How to use ── */
+              <div className="rounded-2xl bg-secondary/60 p-4">
+                <p className="mb-2 text-xs font-black uppercase tracking-[0.15em] text-muted-foreground">How to use</p>
+                <ul className="space-y-2 text-xs text-muted-foreground">
+                  <li>① Upload a PDF</li>
+                  <li>② <strong>Add Text</strong> → click anywhere → type → Place</li>
+                  <li>③ <strong>Select &amp; Move</strong> → click a text to select, then drag it anywhere</li>
+                  <li>④ Edit text, size, color and exact position in the sidebar panel</li>
+                  <li>⑤ <strong>Signature</strong> → draw → click to place</li>
+                  <li>⑥ Download when ready</li>
+                </ul>
+              </div>
+            )}
+
             {/* Page navigation */}
             {pageImages.length > 1 && (
               <div className="rounded-2xl border border-border/70 bg-card p-4">
                 <p className="mb-3 text-xs font-black uppercase tracking-[0.15em] text-muted-foreground">Pages</p>
                 <div className="flex flex-wrap gap-2">
                   {pageImages.map((_, i) => (
-                    <button
-                      key={i}
-                      onClick={() => setCurrentPage(i)}
+                    <button key={i} onClick={() => { setCurrentPage(i); setSelectedId(null); }}
                       className={`h-10 w-12 rounded-xl text-sm font-black transition ${
                         i === currentPage ? "bg-primary text-primary-foreground" : "border border-border/70 bg-card hover:bg-secondary"
                       }`}
-                    >
-                      {i + 1}
-                    </button>
+                    >{i + 1}</button>
                   ))}
                 </div>
               </div>
@@ -461,17 +612,6 @@ export function PdfAnnotateTool() {
               </p>
             </div>
 
-            {/* Help */}
-            <div className="rounded-2xl bg-secondary/60 p-4">
-              <p className="mb-2 text-xs font-black uppercase tracking-[0.15em] text-muted-foreground">How to use</p>
-              <ul className="space-y-2 text-xs text-muted-foreground">
-                <li>① Upload a PDF above</li>
-                <li>② Pick <strong>Add Text</strong>, click anywhere on the page, type your annotation</li>
-                <li>③ Pick <strong>Signature</strong>, draw in the pad, then click to place it on the PDF</li>
-                <li>④ Click <strong>Download PDF</strong> when ready</li>
-              </ul>
-            </div>
-
             {/* Download */}
             <button
               onClick={downloadPdf}
@@ -484,14 +624,8 @@ export function PdfAnnotateTool() {
             {/* Change PDF */}
             <label className="flex h-10 cursor-pointer items-center justify-center rounded-xl border border-border/70 bg-card text-sm font-bold hover:bg-secondary">
               Change PDF
-              <input
-                className="sr-only"
-                type="file"
-                accept="application/pdf"
-                onChange={(e) => {
-                  const f = e.target.files?.[0];
-                  if (f) { setPdfFile(f); loadPdf(f); }
-                }}
+              <input className="sr-only" type="file" accept="application/pdf"
+                onChange={(e) => { const f = e.target.files?.[0]; if (f) { setPdfFile(f); loadPdf(f); } }}
               />
             </label>
           </div>
