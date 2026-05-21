@@ -13,7 +13,17 @@ type TextAnnotation = {
   color: string;
 };
 
+type SigAnnotation = {
+  id: string;
+  page: number;
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+};
+
 type Mode = "text" | "signature" | "select" | "clear";
+type SelectionKind = "text" | "sig";
 
 // ─── Signature Pad ─────────────────────────────────────────────────────────────
 function SignaturePad({
@@ -79,21 +89,19 @@ function SignaturePad({
   );
 }
 
-// ─── Hit test: returns annotation id if click is near its text ─────────────────
+// ─── Hit test: text annotation ─────────────────────────────────────────────────
 function hitTestAnnotation(
   annotations: TextAnnotation[],
   page: number,
   relX: number,
   relY: number
 ): string | null {
-  // Iterate in reverse so topmost (last drawn) wins
   for (let i = annotations.length - 1; i >= 0; i--) {
     const a = annotations[i];
     if (a.page !== page) continue;
     const charWidth = a.fontSize * 0.55;
     const w = a.text.length * charWidth;
     const h = a.fontSize;
-    // x,y in annotation is baseline-left; build a bounding box
     if (
       relX >= a.x - 0.005 &&
       relX <= a.x + w / 1000 + 0.005 &&
@@ -101,6 +109,23 @@ function hitTestAnnotation(
       relY <= a.y + 0.005
     ) {
       return a.id;
+    }
+  }
+  return null;
+}
+
+// ─── Hit test: signature annotation ───────────────────────────────────────────
+function hitTestSig(
+  sigAnnotations: SigAnnotation[],
+  page: number,
+  relX: number,
+  relY: number
+): string | null {
+  for (let i = sigAnnotations.length - 1; i >= 0; i--) {
+    const s = sigAnnotations[i];
+    if (s.page !== page) continue;
+    if (relX >= s.x && relX <= s.x + s.w && relY >= s.y && relY <= s.y + s.h) {
+      return s.id;
     }
   }
   return null;
@@ -115,9 +140,7 @@ export function PdfAnnotateTool() {
   const [mode, setMode] = useState<Mode>("text");
   const [annotations, setAnnotations] = useState<TextAnnotation[]>([]);
   const [signature, setSignature] = useState<string | null>(null);
-  const [sigAnnotations, setSigAnnotations] = useState<
-    { id: string; page: number; x: number; y: number; w: number; h: number }[]
-  >([]);
+  const [sigAnnotations, setSigAnnotations] = useState<SigAnnotation[]>([]);
   const [showSigPad, setShowSigPad] = useState(false);
   const [pendingText, setPendingText] = useState<{ x: number; y: number } | null>(null);
   const [textInput, setTextInput] = useState("");
@@ -127,6 +150,7 @@ export function PdfAnnotateTool() {
 
   // ── Selection + drag state ────────────────────────────────────────────────
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [selectionKind, setSelectionKind] = useState<SelectionKind | null>(null);
   const dragging = useRef(false);
   const dragStart = useRef<{ mouseX: number; mouseY: number; annX: number; annY: number } | null>(null);
 
@@ -134,6 +158,7 @@ export function PdfAnnotateTool() {
   const containerRef = useRef<HTMLDivElement>(null);
 
   const selectedAnnotation = annotations.find((a) => a.id === selectedId) ?? null;
+  const selectedSig = sigAnnotations.find((s) => s.id === selectedId) ?? null;
 
   // ── Load PDF ──────────────────────────────────────────────────────────────
   const loadPdf = useCallback(async (file: File) => {
@@ -170,6 +195,7 @@ export function PdfAnnotateTool() {
       setAnnotations([]);
       setSigAnnotations([]);
       setSelectedId(null);
+      setSelectionKind(null);
       setStatus(`PDF loaded — ${numPages} page${numPages !== 1 ? "s" : ""}. Click a mode below to start annotating.`);
     } catch {
       setStatus("Could not load PDF. Make sure it's a valid, unlocked PDF file.");
@@ -197,7 +223,6 @@ export function PdfAnnotateTool() {
           ctx.fillStyle = a.color;
           ctx.fillText(a.text, a.x * canvas.width, a.y * canvas.height);
 
-          // Selection highlight
           if (a.id === selectedId) {
             const tw = ctx.measureText(a.text).width;
             const th = a.fontSize;
@@ -223,6 +248,21 @@ export function PdfAnnotateTool() {
           const sImg = new Image();
           sImg.onload = () => {
             ctx.drawImage(sImg, s.x * canvas.width, s.y * canvas.height, s.w * canvas.width, s.h * canvas.height);
+
+            // Selection highlight for signature
+            if (s.id === selectedId) {
+              ctx.save();
+              ctx.strokeStyle = "#0ea5e9";
+              ctx.lineWidth = 2;
+              ctx.setLineDash([5, 3]);
+              ctx.strokeRect(
+                s.x * canvas.width - 4,
+                s.y * canvas.height - 4,
+                s.w * canvas.width + 8,
+                s.h * canvas.height + 8
+              );
+              ctx.restore();
+            }
           };
           sImg.src = signature;
         });
@@ -245,20 +285,31 @@ export function PdfAnnotateTool() {
   const handleMouseDown = (e: React.MouseEvent<HTMLCanvasElement>) => {
     if (mode !== "select") return;
     const { relX, relY, px, py } = getRelativeCoords(e);
-    const hit = hitTestAnnotation(annotations, currentPage, relX, relY);
-    if (hit) {
-      setSelectedId(hit);
-      const ann = annotations.find((a) => a.id === hit)!;
+
+    // Check text annotations first (on top)
+    const hitText = hitTestAnnotation(annotations, currentPage, relX, relY);
+    if (hitText) {
+      const ann = annotations.find((a) => a.id === hitText)!;
+      setSelectedId(hitText);
+      setSelectionKind("text");
       dragging.current = true;
-      dragStart.current = {
-        mouseX: px,
-        mouseY: py,
-        annX: ann.x,
-        annY: ann.y,
-      };
-    } else {
-      setSelectedId(null);
+      dragStart.current = { mouseX: px, mouseY: py, annX: ann.x, annY: ann.y };
+      return;
     }
+
+    // Then check signature annotations
+    const hitSig = hitTestSig(sigAnnotations, currentPage, relX, relY);
+    if (hitSig) {
+      const s = sigAnnotations.find((sig) => sig.id === hitSig)!;
+      setSelectedId(hitSig);
+      setSelectionKind("sig");
+      dragging.current = true;
+      dragStart.current = { mouseX: px, mouseY: py, annX: s.x, annY: s.y };
+      return;
+    }
+
+    setSelectedId(null);
+    setSelectionKind(null);
   };
 
   // ── Mouse move ────────────────────────────────────────────────────────────
@@ -272,13 +323,18 @@ export function PdfAnnotateTool() {
     const py = (e.clientY - rect.top) * scaleY;
     const dx = (px - dragStart.current.mouseX) / canvas.width;
     const dy = (py - dragStart.current.mouseY) / canvas.height;
-    setAnnotations((prev) =>
-      prev.map((a) =>
-        a.id === selectedId
-          ? { ...a, x: Math.max(0, Math.min(1, dragStart.current!.annX + dx)), y: Math.max(0, Math.min(1, dragStart.current!.annY + dy)) }
-          : a
-      )
-    );
+    const newX = Math.max(0, Math.min(1, dragStart.current.annX + dx));
+    const newY = Math.max(0, Math.min(1, dragStart.current.annY + dy));
+
+    if (selectionKind === "text") {
+      setAnnotations((prev) =>
+        prev.map((a) => (a.id === selectedId ? { ...a, x: newX, y: newY } : a))
+      );
+    } else if (selectionKind === "sig") {
+      setSigAnnotations((prev) =>
+        prev.map((s) => (s.id === selectedId ? { ...s, x: newX, y: newY } : s))
+      );
+    }
   };
 
   // ── Mouse up ──────────────────────────────────────────────────────────────
@@ -292,16 +348,24 @@ export function PdfAnnotateTool() {
     const { relX, relY } = getRelativeCoords(e);
 
     if (mode === "text") {
-      // If clicking an existing annotation, select it instead of creating new
       const hit = hitTestAnnotation(annotations, currentPage, relX, relY);
       if (hit) {
         setSelectedId(hit);
+        setSelectionKind("text");
         setMode("select");
         return;
       }
       setPendingText({ x: relX, y: relY });
       setTextInput("");
     } else if (mode === "signature") {
+      // Select an existing signature if clicked
+      const hitSig = hitTestSig(sigAnnotations, currentPage, relX, relY);
+      if (hitSig) {
+        setSelectedId(hitSig);
+        setSelectionKind("sig");
+        setMode("select");
+        return;
+      }
       if (!signature) { setShowSigPad(true); return; }
       setSigAnnotations((prev) => [
         ...prev,
@@ -333,9 +397,19 @@ export function PdfAnnotateTool() {
     setAnnotations((prev) => prev.map((a) => (a.id === selectedId ? { ...a, ...patch } : a)));
   };
 
+  const updateSelectedSig = (patch: Partial<SigAnnotation>) => {
+    if (!selectedId) return;
+    setSigAnnotations((prev) => prev.map((s) => (s.id === selectedId ? { ...s, ...patch } : s)));
+  };
+
   const deleteSelected = () => {
-    setAnnotations((prev) => prev.filter((a) => a.id !== selectedId));
+    if (selectionKind === "text") {
+      setAnnotations((prev) => prev.filter((a) => a.id !== selectedId));
+    } else if (selectionKind === "sig") {
+      setSigAnnotations((prev) => prev.filter((s) => s.id !== selectedId));
+    }
     setSelectedId(null);
+    setSelectionKind(null);
     setMode("text");
   };
 
@@ -422,7 +496,7 @@ export function PdfAnnotateTool() {
               {(["text", "select", "signature", "clear"] as Mode[]).map((m) => (
                 <button
                   key={m}
-                  onClick={() => { setMode(m); if (m !== "select") setSelectedId(null); }}
+                  onClick={() => { setMode(m); if (m !== "select") { setSelectedId(null); setSelectionKind(null); } }}
                   className={`inline-flex h-9 items-center gap-2 rounded-xl px-3 text-sm font-black transition ${
                     mode === m ? "bg-primary text-primary-foreground" : "border border-border/70 bg-card hover:bg-secondary"
                   }`}
@@ -436,7 +510,7 @@ export function PdfAnnotateTool() {
               ))}
               {mode === "clear" && (
                 <button
-                  onClick={() => { setAnnotations([]); setSigAnnotations([]); setSelectedId(null); setMode("text"); }}
+                  onClick={() => { setAnnotations([]); setSigAnnotations([]); setSelectedId(null); setSelectionKind(null); setMode("text"); }}
                   className="inline-flex h-9 items-center gap-2 rounded-xl border border-destructive/50 bg-destructive/10 px-3 text-sm font-black text-destructive"
                 >
                   Confirm Clear
@@ -499,8 +573,8 @@ export function PdfAnnotateTool() {
           {/* Sidebar */}
           <div className="flex flex-col gap-4">
 
-            {/* ── Edit selected annotation ── */}
-            {selectedAnnotation ? (
+            {/* ── Edit selected TEXT annotation ── */}
+            {selectedAnnotation && selectionKind === "text" && (
               <div className="rounded-2xl border border-primary/40 bg-card p-4 shadow-sm">
                 <p className="mb-3 text-xs font-black uppercase tracking-[0.15em] text-primary">Edit Text</p>
 
@@ -557,16 +631,72 @@ export function PdfAnnotateTool() {
                   <Trash2 className="h-4 w-4" /> Delete this annotation
                 </button>
               </div>
-            ) : (
-              /* ── How to use ── */
+            )}
+
+            {/* ── Edit selected SIGNATURE annotation ── */}
+            {selectedSig && selectionKind === "sig" && (
+              <div className="rounded-2xl border border-primary/40 bg-card p-4 shadow-sm">
+                <p className="mb-3 text-xs font-black uppercase tracking-[0.15em] text-primary">Edit Signature</p>
+
+                <p className="mb-1 text-xs font-bold text-muted-foreground">Position (drag on canvas to move)</p>
+                <div className="mb-3 grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="text-xs text-muted-foreground">X offset</label>
+                    <input type="number" min={0} max={1} step={0.001}
+                      className="h-9 w-full rounded-xl border border-border/70 bg-secondary px-2 text-sm outline-none focus:border-primary"
+                      value={parseFloat(selectedSig.x.toFixed(3))}
+                      onChange={(e) => updateSelectedSig({ x: Number(e.target.value) })}
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs text-muted-foreground">Y offset</label>
+                    <input type="number" min={0} max={1} step={0.001}
+                      className="h-9 w-full rounded-xl border border-border/70 bg-secondary px-2 text-sm outline-none focus:border-primary"
+                      value={parseFloat(selectedSig.y.toFixed(3))}
+                      onChange={(e) => updateSelectedSig({ y: Number(e.target.value) })}
+                    />
+                  </div>
+                </div>
+
+                <p className="mb-1 text-xs font-bold text-muted-foreground">Size</p>
+                <div className="mb-4 grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="text-xs text-muted-foreground">Width</label>
+                    <input type="number" min={0.05} max={1} step={0.01}
+                      className="h-9 w-full rounded-xl border border-border/70 bg-secondary px-2 text-sm outline-none focus:border-primary"
+                      value={parseFloat(selectedSig.w.toFixed(2))}
+                      onChange={(e) => updateSelectedSig({ w: Number(e.target.value) })}
+                    />
+                  </div>
+                  <div>
+                    <label className="text-xs text-muted-foreground">Height</label>
+                    <input type="number" min={0.02} max={1} step={0.01}
+                      className="h-9 w-full rounded-xl border border-border/70 bg-secondary px-2 text-sm outline-none focus:border-primary"
+                      value={parseFloat(selectedSig.h.toFixed(2))}
+                      onChange={(e) => updateSelectedSig({ h: Number(e.target.value) })}
+                    />
+                  </div>
+                </div>
+
+                <button
+                  onClick={deleteSelected}
+                  className="flex h-9 w-full items-center justify-center gap-2 rounded-xl border border-destructive/50 bg-destructive/10 text-sm font-black text-destructive hover:bg-destructive/20"
+                >
+                  <Trash2 className="h-4 w-4" /> Delete this signature
+                </button>
+              </div>
+            )}
+
+            {/* ── How to use (when nothing selected) ── */}
+            {!selectedId && (
               <div className="rounded-2xl bg-secondary/60 p-4">
                 <p className="mb-2 text-xs font-black uppercase tracking-[0.15em] text-muted-foreground">How to use</p>
                 <ul className="space-y-2 text-xs text-muted-foreground">
                   <li>① Upload a PDF</li>
                   <li>② <strong>Add Text</strong> → click anywhere → type → Place</li>
-                  <li>③ <strong>Select &amp; Move</strong> → click a text to select, then drag it anywhere</li>
+                  <li>③ <strong>Select &amp; Move</strong> → click any text or signature to select, then drag it anywhere</li>
                   <li>④ Edit text, size, color and exact position in the sidebar panel</li>
-                  <li>⑤ <strong>Signature</strong> → draw → click to place</li>
+                  <li>⑤ <strong>Signature</strong> → draw → click to place; select &amp; drag to reposition</li>
                   <li>⑥ Download when ready</li>
                 </ul>
               </div>
@@ -578,7 +708,7 @@ export function PdfAnnotateTool() {
                 <p className="mb-3 text-xs font-black uppercase tracking-[0.15em] text-muted-foreground">Pages</p>
                 <div className="flex flex-wrap gap-2">
                   {pageImages.map((_, i) => (
-                    <button key={i} onClick={() => { setCurrentPage(i); setSelectedId(null); }}
+                    <button key={i} onClick={() => { setCurrentPage(i); setSelectedId(null); setSelectionKind(null); }}
                       className={`h-10 w-12 rounded-xl text-sm font-black transition ${
                         i === currentPage ? "bg-primary text-primary-foreground" : "border border-border/70 bg-card hover:bg-secondary"
                       }`}
@@ -594,7 +724,7 @@ export function PdfAnnotateTool() {
                 <p className="mb-3 text-xs font-black uppercase tracking-[0.15em] text-muted-foreground">Saved Signature</p>
                 <img src={signature} alt="Saved signature" className="w-full rounded-xl border border-border/50" />
                 <button
-                  onClick={() => { setSignature(null); setSigAnnotations([]); }}
+                  onClick={() => { setSignature(null); setSigAnnotations([]); setSelectedId(null); setSelectionKind(null); }}
                   className="mt-3 inline-flex h-9 w-full items-center justify-center gap-2 rounded-xl border border-border/70 bg-card text-sm font-bold hover:bg-secondary"
                 >
                   <Trash2 className="h-4 w-4" /> Remove
