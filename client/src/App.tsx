@@ -1,1 +1,0 @@
-$(cat /tmp/App_new.tsx)
