@@ -1,7 +1,26 @@
 {
+  "functions": {
+    "api/render.ts": { "memory": 256, "maxDuration": 10 },
+    "api/summarize.ts": { "memory": 256, "maxDuration": 30 }
+  },
   "rewrites": [
     {
-      "source": "/((?!api/|assets/|robots.txt|sitemap.xml|ads.txt).*)",
+      "source": "/api/(.*)",
+      "destination": "/api/$1"
+    },
+    {
+      "source": "/((?!api/|assets/|robots.txt|sitemap.xml|ads.txt|favicon\\.svg|favicon\\.ico|og-image\\.png|\\.well-known).*)",
+      "has": [
+        {
+          "type": "header",
+          "key": "user-agent",
+          "value": "(?i).*(Googlebot|bingbot|Slurp|DuckDuckBot|Baiduspider|YandexBot|Sogou|Exabot|facebot|ia_archiver|facebookexternalhit|Twitterbot|LinkedInBot|WhatsApp|Applebot|SemrushBot|AhrefsBot|MJ12bot|DotBot|Lighthouse|GTmetrix|PageSpeed|Screaming.*Frog).*"
+        }
+      ],
+      "destination": "/api/render?__path=/$1"
+    },
+    {
+      "source": "/((?!api/|assets/|robots.txt|sitemap.xml|ads.txt|favicon\\.svg|favicon\\.ico|og-image\\.png|\\.well-known).*)",
       "destination": "/index.html"
     }
   ]
