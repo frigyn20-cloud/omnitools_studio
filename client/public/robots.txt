@@ -1,19 +1,23 @@
 User-agent: *
 Allow: /
+Allow: /api/render
 Disallow: /api/
 Disallow: /*.json$
 
 # Priority crawl hints for major search engines
 User-agent: Googlebot
 Allow: /
+Allow: /api/render
 Crawl-delay: 0
 
 User-agent: Bingbot
 Allow: /
+Allow: /api/render
 Crawl-delay: 1
 
 User-agent: Slurp
 Allow: /
+Allow: /api/render
 Crawl-delay: 2
 
 Sitemap: https://omnitoolstudio.com/sitemap.xml
