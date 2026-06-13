@@ -78,7 +78,6 @@ const seoLandings: SeoLanding[] = [
   { slug: "hourly-to-salary-calculator", title: "Hourly to Salary Calculator", description: "Convert an hourly wage into estimated weekly, monthly, and annual salary.", useCase: "Use this to compare hourly jobs, internship offers, part-time schedules, and full-time salary equivalents.", steps: ["Enter hourly pay.", "Multiply by hours per week.", "Multiply weekly pay by 52 for annual salary.", "Compare estimated income with expenses."], example: "$25 per hour at 40 hours per week is about $52,000 per year before taxes.", howWorks: "Salary conversion multiplies hourly pay by weekly hours and the number of paid weeks per year.", equation: "Annual salary = Hourly wage × Hours per week × 52." },
   { slug: "salary-to-hourly-calculator", title: "Salary to Hourly Calculator", description: "Convert annual salary into an estimated hourly wage.", useCase: "Use this to compare salary jobs with hourly work or understand the hourly value of an offer.", steps: ["Start with annual salary.", "Choose weekly hours.", "Divide salary by annual work hours.", "Use the result to compare offers."], example: "A $60,000 salary at 40 hours per week is about $28.85 per hour before taxes.", howWorks: "The calculator divides yearly pay by estimated yearly work hours.", equation: "Hourly wage = Annual salary ÷ (Hours per week × 52)." },
   { slug: "student-budget-calculator", title: "Student Budget Calculator", description: "Plan a monthly budget as a student: track income, fixed expenses, variable spending, and savings goals.", useCase: "Use this to create a realistic monthly budget while studying.", steps: ["Enter monthly income.", "List fixed costs like rent and subscriptions.", "Add variable spending like food and transport.", "See how much is left for savings."], example: "A student earning $1,200/month who spends $900 on necessities has $300 for savings or extras.", howWorks: "The calculator subtracts total expenses from income to show remaining budget.", equation: "Remaining = Income - Fixed expenses - Variable expenses." },
-  { slug: "monthly-budget-planner-free", title: "Free Monthly Budget Planner", description: "Create a complete monthly budget plan with income, expenses by category, and savings targets — free, no sign-up.", useCase: "Use this every month to stay on top of your spending and savings.", steps: ["Enter all income sources.", "List expenses by category.", "Set a savings target.", "Track the difference between income and total spend."], example: "A household earning $4,500/month that spends $3,800 is saving $700, which is about a 15% savings rate.", howWorks: "The planner totals income and subtracts categorized expenses to show surplus or deficit.", equation: "Surplus = Total income - Total expenses." },
   { slug: "car-loan-monthly-payment-calculator", title: "Car Loan Monthly Payment Calculator", description: "Estimate your monthly car loan payment based on price, down payment, interest rate, and term.", useCase: "Use before buying a car to see if the monthly payment fits your budget.", steps: ["Enter the vehicle price.", "Subtract the down payment.", "Enter the APR.", "Choose the loan term in months."], example: "A $25,000 car with $3,000 down at 6% APR over 60 months has an estimated payment of about $386/month.", howWorks: "Car loan payments use the same amortization formula as personal loans.", equation: "Payment = P × r ÷ (1 - (1 + r)^-n), where P = price minus down payment." },
   { slug: "personal-loan-calculator-monthly-payments", title: "Personal Loan Calculator – Monthly Payments", description: "Calculate the monthly payment, total paid, and total interest for a personal loan.", useCase: "Use before accepting a personal loan to understand the true cost.", steps: ["Enter loan amount.", "Enter interest rate.", "Enter term in months or years.", "Review monthly payment and total interest."], example: "A $10,000 personal loan at 12% APR for 3 years costs about $332/month and $1,950 in total interest.", howWorks: "Uses the standard amortization formula.", equation: "Payment = P × r ÷ (1 - (1 + r)^-n)." },
   { slug: "how-long-to-save-1000-dollars", title: "How Long to Save $1,000?", description: "Calculate how many months or weeks it takes to save $1,000 based on your monthly savings amount.", useCase: "Use this to set a realistic savings timeline for a specific goal.", steps: ["Enter how much you can save per month.", "The tool calculates time to reach $1,000.", "Adjust the monthly amount to speed up or slow down."], example: "Saving $125 per month, you reach $1,000 in 8 months.", howWorks: "Simple division: goal divided by monthly savings gives months needed.", equation: "Months = Goal ÷ Monthly savings." },
@@ -157,6 +156,7 @@ function buildHtml(opts: {
   canonical: string;
   h1: string;
   bodyHtml: string;
+  schemaJson?: string;
 }): string {
   return `<!doctype html>
 <html lang="en">
@@ -172,7 +172,8 @@ function buildHtml(opts: {
 <meta property="og:type" content="website"/>
 <meta name="robots" content="index,follow,max-snippet:-1,max-image-preview:large,max-video-preview:-1"/>
 <meta name="google-site-verification" content="tol0Wx9RC73L4p9cQh5AykkiEhNgLrhmnV7pdbmo2Qk"/>
-<style>body{font-family:system-ui,sans-serif;max-width:900px;margin:0 auto;padding:1rem 1.5rem;line-height:1.6;color:#1a1a1a}h1{font-size:2rem;margin-bottom:.5rem}h2{font-size:1.3rem;margin-top:1.5rem}p{margin:.5rem 0}ol{padding-left:1.4rem}a{color:#01696f}nav{margin-bottom:1.5rem}</style>
+${opts.schemaJson ? `<script type="application/ld+json">${opts.schemaJson}</script>` : ""}
+<style>body{font-family:system-ui,sans-serif;max-width:900px;margin:0 auto;padding:1rem 1.5rem;line-height:1.6;color:#1a1a1a}h1{font-size:2rem;margin-bottom:.5rem}h2{font-size:1.3rem;margin-top:1.5rem}p{margin:.5rem 0}ol,ul{padding-left:1.4rem}li{margin:.3rem 0}a{color:#01696f}nav{margin-bottom:1.5rem}.faq-item{border-top:1px solid #e5e5e5;padding:.8rem 0}.faq-item h3{font-size:1rem;margin:0 0 .4rem}.related-tools{background:#f5f9f9;border-radius:6px;padding:1rem 1.2rem;margin-top:1.5rem}.related-tools h2{margin-top:0}</style>
 </head>
 <body>
 <nav><a href="https://omnitoolstudio.com/">OmniTool Studio</a> &rsaquo; ${esc(opts.h1)}</nav>
@@ -181,6 +182,248 @@ ${opts.bodyHtml}
 <p style="margin-top:2rem"><a href="https://omnitoolstudio.com/">&#8592; Back to all free tools</a></p>
 </body>
 </html>`;
+}
+
+// ─── Rich page generators ─────────────────────────────────────────────────────
+
+function budgetPlannerPage(): string {
+  const schema = JSON.stringify({
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "HowTo",
+        "name": "How to Create a Monthly Budget",
+        "description": "A step-by-step guide to building a monthly budget that tracks income, fixed costs, variable expenses, and savings.",
+        "step": [
+          { "@type": "HowToStep", "name": "Enter your take-home income", "text": "Add your monthly income after taxes — salary, freelance, side income, or any other regular source." },
+          { "@type": "HowToStep", "name": "List your fixed expenses", "text": "Add costs that stay the same each month: rent or mortgage, loan payments, subscriptions, and insurance." },
+          { "@type": "HowToStep", "name": "Track variable expenses", "text": "Add spending that changes month to month: groceries, dining, gas, entertainment, and clothing." },
+          { "@type": "HowToStep", "name": "Set a savings target", "text": "Decide how much you want to save. A common starting point is 10–20% of take-home income." },
+          { "@type": "HowToStep", "name": "Review your surplus or shortfall", "text": "If income minus total expenses is positive, you have a surplus. If negative, adjust by cutting variable spending first." }
+        ]
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "How often should I update my budget?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Once a month is enough for most people. Review it within the first few days of a new month when the previous month's spending is fresh. If your income or major expenses change, update it immediately rather than waiting." }
+          },
+          {
+            "@type": "Question",
+            "name": "What if my income varies month to month?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Budget based on your lowest recent monthly income, not your average. Cover fixed expenses first. In months when you earn more, put the extra toward savings or debt — don't let it disappear into unplanned spending." }
+          },
+          {
+            "@type": "Question",
+            "name": "How much of my income should go to savings?",
+            "acceptedAnswer": { "@type": "Answer", "text": "The 50/30/20 rule suggests 20% for savings and debt repayment. If that's not realistic right now, start with whatever you can — even $50 or $100 a month builds a habit and adds up over time." }
+          },
+          {
+            "@type": "Question",
+            "name": "Should I include debt payments as an expense?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Yes. Minimum debt payments are a fixed expense — they happen every month regardless. Any extra debt payments above the minimum can be treated as part of your savings allocation, since they reduce what you owe." }
+          }
+        ]
+      }
+    ]
+  });
+
+  const bodyHtml = `
+<p>Most people don&#8217;t overspend because they&#8217;re careless &#8212; they overspend because they don&#8217;t have a clear picture of what&#8217;s coming in and going out. This planner gives you that picture in under two minutes.</p>
+
+<h2>How to Use the Budget Planner</h2>
+<ol>
+  <li><strong>Enter your take-home income.</strong> Use the amount that actually lands in your account each month, after taxes and any automatic deductions.</li>
+  <li><strong>Add your fixed expenses.</strong> These are costs that don&#8217;t change: rent or mortgage, car payment, loan minimums, subscriptions, and insurance premiums.</li>
+  <li><strong>Add your variable expenses.</strong> These shift month to month: groceries, gas, dining out, entertainment, and personal spending.</li>
+  <li><strong>Set a savings target.</strong> Treat it like a bill. Decide on an amount before you plan anything else.</li>
+  <li><strong>Review the result.</strong> If income minus everything is positive, you&#8217;re in good shape. If it&#8217;s negative, look at variable expenses first &#8212; that&#8217;s where most budgets have room to flex.</li>
+</ol>
+
+<h2>The 50/30/20 Rule</h2>
+<p>The 50/30/20 rule is a straightforward way to divide your income into three buckets:</p>
+<ul>
+  <li><strong>50% for needs</strong> &#8212; rent, utilities, groceries, transportation, minimum debt payments</li>
+  <li><strong>30% for wants</strong> &#8212; dining out, streaming, hobbies, travel</li>
+  <li><strong>20% for savings and debt payoff</strong> &#8212; emergency fund, retirement, extra debt payments</li>
+</ul>
+<p>On a $4,500 take-home income, that works out to $2,250 for needs, $1,350 for wants, and $900 toward savings. It&#8217;s a starting point, not a rigid rule &#8212; adjust the percentages to fit your situation.</p>
+
+<h2>Fixed vs. Variable vs. Irregular Expenses</h2>
+<p>Most budget planners only separate fixed and variable. The third category &#8212; irregular expenses &#8212; is where budgets quietly fall apart.</p>
+<ul>
+  <li><strong>Fixed:</strong> Rent, mortgage, subscriptions, loan payments, insurance. Same amount every month.</li>
+  <li><strong>Variable:</strong> Groceries, gas, dining, entertainment. Changes monthly but happens every month.</li>
+  <li><strong>Irregular:</strong> Car repairs, medical bills, annual fees, holiday gifts, back-to-school costs. These feel like surprises, but most aren&#8217;t. Estimate their annual total and divide by 12. Set that amount aside each month so you&#8217;re never caught short.</li>
+</ul>
+
+<h2>A Realistic $3,800 Take-Home Budget</h2>
+<p>Here&#8217;s what a working budget might look like for someone taking home $3,800 a month:</p>
+<ul>
+  <li>Rent: $1,200</li>
+  <li>Car payment + insurance: $480</li>
+  <li>Groceries: $350</li>
+  <li>Utilities + phone: $180</li>
+  <li>Dining out: $200</li>
+  <li>Subscriptions: $60</li>
+  <li>Gas: $120</li>
+  <li>Personal spending: $150</li>
+  <li>Irregular expenses (set aside): $120</li>
+  <li><strong>Savings: $940</strong></li>
+</ul>
+<p>Total expenses: $2,860. Savings: $940, which is about 25% of take-home pay. Not every month will look this clean, but having numbers in front of you makes it much easier to identify where things drift.</p>
+
+<h2>Frequently Asked Questions</h2>
+<div class="faq-item">
+  <h3>How often should I update my budget?</h3>
+  <p>Once a month is enough for most people. Review it within the first few days of a new month when the previous month&#8217;s spending is fresh. If your income or major expenses change mid-month, update it then &#8212; don&#8217;t wait.</p>
+</div>
+<div class="faq-item">
+  <h3>What if my income varies month to month?</h3>
+  <p>Budget based on your lowest recent monthly income, not your average. Cover fixed expenses first. In good months, put the extra toward savings or debt rather than letting it disappear into unplanned spending.</p>
+</div>
+<div class="faq-item">
+  <h3>How much of my income should go to savings?</h3>
+  <p>The 50/30/20 rule suggests 20%. If that&#8217;s not realistic right now, start with whatever is consistent &#8212; even $50 a month builds a habit. Increase the amount as your income grows or expenses drop.</p>
+</div>
+<div class="faq-item">
+  <h3>Should I include debt payments as an expense?</h3>
+  <p>Yes. Minimum debt payments are fixed expenses &#8212; treat them like rent. Any extra debt payments above the minimum can sit in your savings allocation, since paying down debt has the same net effect as saving.</p>
+</div>
+
+<div class="related-tools">
+  <h2>Related Tools</h2>
+  <ul>
+    <li><a href="https://omnitoolstudio.com/after-tax-salary-calculator">After-Tax Salary Calculator</a> &#8212; find your actual take-home pay before you budget</li>
+    <li><a href="https://omnitoolstudio.com/savings-calculator">Savings Calculator</a> &#8212; project how your savings grow over time with compound interest</li>
+    <li><a href="https://omnitoolstudio.com/loan-calculator">Loan Calculator</a> &#8212; calculate your monthly payment on any loan</li>
+    <li><a href="https://omnitoolstudio.com/compound-interest-calculator-free">Compound Interest Calculator</a> &#8212; see what consistent saving does over 5, 10, or 20 years</li>
+  </ul>
+</div>`;
+
+  return buildHtml({
+    title: "Free Monthly Budget Planner — Track Income & Expenses Online | OmniTool Studio",
+    description: "Plan your monthly budget in seconds. Enter income, fixed costs, and variable expenses to see exactly what you have left to save. Free, no account needed.",
+    canonical: "https://omnitoolstudio.com/monthly-budget-planner-free",
+    h1: "Free Monthly Budget Planner",
+    bodyHtml,
+    schemaJson: schema,
+  });
+}
+
+function aiSummarizerPage(): string {
+  const schema = JSON.stringify({
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "SoftwareApplication",
+        "name": "AI Text Summarizer",
+        "applicationCategory": "UtilitiesApplication",
+        "operatingSystem": "Web",
+        "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+        "description": "Paste any article, essay, or long text and get a clean AI-generated summary. Free, no login required.",
+        "url": "https://omnitoolstudio.com/ai-text-summarizer"
+      },
+      {
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "Is there a word or character limit?",
+            "acceptedAnswer": { "@type": "Answer", "text": "The summarizer handles most standard articles and documents. Very long texts (book-length) may need to be split into sections for best results." }
+          },
+          {
+            "@type": "Question",
+            "name": "Does it work on text in languages other than English?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Yes. The underlying model supports many languages. Results are generally strongest in English, but summaries of Spanish, French, German, and other major languages are typically accurate." }
+          },
+          {
+            "@type": "Question",
+            "name": "Can I summarize a PDF?",
+            "acceptedAnswer": { "@type": "Answer", "text": "The tool works with pasted text, not uploaded files. To summarize a PDF, open the PDF, select all the text, copy it, and paste it into the summarizer." }
+          },
+          {
+            "@type": "Question",
+            "name": "Is my text stored or used for training?",
+            "acceptedAnswer": { "@type": "Answer", "text": "Text you paste is sent to the AI model to generate the summary and is not stored on our servers after processing. We do not use your input to train any model." }
+          },
+          {
+            "@type": "Question",
+            "name": "How is this different from ChatGPT?",
+            "acceptedAnswer": { "@type": "Answer", "text": "This tool is purpose-built for summarization — you paste text and get a summary, with no prompting required. ChatGPT is a general-purpose chatbot. If all you need is a quick summary, this is faster than opening a chat interface and writing a prompt." }
+          }
+        ]
+      }
+    ]
+  });
+
+  const bodyHtml = `
+<p>Reading everything isn&#8217;t always an option. Paste any article, research paper, essay, or long document below and get a clean summary &#8212; the key points, nothing else.</p>
+
+<h2>How to Summarize Text</h2>
+<ol>
+  <li><strong>Paste your text.</strong> Copy the content from any article, document, or website and paste it into the input field.</li>
+  <li><strong>Choose a summary length.</strong> Short gives you 2&#8211;3 sentences. Medium covers the main points in a paragraph. Long preserves more detail and context.</li>
+  <li><strong>Click Summarize.</strong> The AI processes your text and returns a summary in seconds.</li>
+  <li><strong>Copy and use it.</strong> Paste the summary into your notes, email, study cards, or wherever you need it.</li>
+</ol>
+
+<h2>What It&#8217;s Good For</h2>
+<ul>
+  <li><strong>Research and studying.</strong> When you&#8217;re reviewing multiple sources for a paper or project, skimming summaries is faster than reading every piece in full. Use it to decide which articles deserve a closer read.</li>
+  <li><strong>Keeping up with news.</strong> Long news articles often bury the main point. A summary gets you up to speed in 15 seconds instead of 5 minutes.</li>
+  <li><strong>Work documents.</strong> Long reports, email threads, and meeting notes often contain a lot of filler. Summarizing them before a meeting or deadline saves real time.</li>
+  <li><strong>Writing and editing.</strong> Summarize a draft to check whether your main argument is actually coming through. If the summary doesn&#8217;t sound like what you intended to say, the writing needs work.</li>
+</ul>
+
+<h2>How the Summarizer Works</h2>
+<p>The tool sends your text to a large language model, which reads the entire input and identifies the most important information &#8212; main claims, supporting evidence, conclusions &#8212; and rewrites them concisely. It doesn&#8217;t just cut sentences; it understands meaning and produces a summary that reads naturally.</p>
+<p>The output is not a copy-paste of the original. It&#8217;s a rewritten version of the key ideas, which means it handles dense academic writing, informal blog posts, and everything in between.</p>
+
+<h2>What Makes a Good Summary</h2>
+<p>A useful summary answers three questions: What is this about? What is the main point? Why does it matter? If your summary answers all three, it&#8217;s doing its job. If it only answers the first one, the source material may lack a clear argument &#8212; or the text passed in was too fragmented. For best results, paste a complete section of text rather than scattered sentences.</p>
+
+<h2>Frequently Asked Questions</h2>
+<div class="faq-item">
+  <h3>Is there a word or character limit?</h3>
+  <p>The tool handles most standard articles and documents. Very long texts &#8212; like a full book chapter &#8212; may produce better results if split into sections.</p>
+</div>
+<div class="faq-item">
+  <h3>Does it work in languages other than English?</h3>
+  <p>Yes. Results are strongest in English, but the model supports Spanish, French, German, Portuguese, and other major languages with solid accuracy.</p>
+</div>
+<div class="faq-item">
+  <h3>Can I summarize a PDF?</h3>
+  <p>The tool works with pasted text. To summarize a PDF, open it, select all the text, copy, and paste it in. Most PDF readers support text selection.</p>
+</div>
+<div class="faq-item">
+  <h3>Is my text stored or used to train the AI?</h3>
+  <p>Text is sent to the AI model to generate the summary and is not stored on our servers after processing. We do not use your input for model training.</p>
+</div>
+<div class="faq-item">
+  <h3>How is this different from ChatGPT?</h3>
+  <p>This tool is purpose-built for one task: paste text, get a summary. No prompting, no chat interface, no account. If you just need a quick summary, it&#8217;s faster.</p>
+</div>
+
+<div class="related-tools">
+  <h2>Related Tools</h2>
+  <ul>
+    <li><a href="https://omnitoolstudio.com/word-counter">Word Counter</a> &#8212; check word count, reading time, and keyword density</li>
+    <li><a href="https://omnitoolstudio.com/text-tools">Text Tools</a> &#8212; case conversion, slug generator, reverse text, and cleanup</li>
+    <li><a href="https://omnitoolstudio.com/online-notepad">Online Notepad</a> &#8212; a fast scratch pad for notes, no sign-in needed</li>
+  </ul>
+</div>`;
+
+  return buildHtml({
+    title: "AI Text Summarizer — Summarize Any Article Free (No Login) | OmniTool Studio",
+    description: "Paste any article, essay, or long text and get a clean AI summary in seconds. Choose short, medium, or long output. Completely free, no sign-up.",
+    canonical: "https://omnitoolstudio.com/ai-text-summarizer",
+    h1: "AI Text Summarizer",
+    bodyHtml,
+    schemaJson: schema,
+  });
 }
 
 // ─── Page generators ──────────────────────────────────────────────────────────
@@ -295,6 +538,10 @@ function resolvePage(pathname: string): string | null {
   if (blogMatch) return blogPostPage(blogMatch[1]);
 
   const slug = p.replace(/^\//, "");
+
+  // rich dedicated pages
+  if (slug === "monthly-budget-planner-free") return budgetPlannerPage();
+  if (slug === "ai-text-summarizer") return aiSummarizerPage();
 
   // tool page
   if (tools[slug]) return toolPage(slug);
