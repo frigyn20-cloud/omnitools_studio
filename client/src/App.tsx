@@ -1,5 +1,6 @@
 import { createContext, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { Analytics } from "@vercel/analytics/react";
+import { SeoLandingRichContent } from "./SeoLandingExtras";
 import { Link, Switch, Route, Router, useParams } from "wouter";
 import { useBrowserLocation } from "wouter/use-browser-location";
 import { useHashLocation } from "wouter/use-hash-location";
@@ -2002,6 +2003,7 @@ function SeoLandingPage() {
                 : "This page is built for fast everyday estimates. For important financial, medical, tax, legal, or business decisions, verify results with a trusted professional source."}
             </p>
           </section>
+          <SeoLandingRichContent slug={landing.slug} />
         </section>
 
         <aside className="grid content-start gap-4">
